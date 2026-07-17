@@ -1,59 +1,62 @@
 ---
-// Commission section for FERRUM
+// Commission/Contact section for VM MOBILE
 ---
-<section class="commission" id="commission" data-section="03 / Commission">
+<section class="commission" id="commission" data-section="03 / Kontakt">
   <div class="grid">
-    <h2 class="commission-title display">Build something<br />that stays.</h2>
-    <div class="commission-steps" aria-label="Commission process">
-      <div class="step"><b>01</b><span>Brief / site / dimensions</span></div>
-      <div class="step"><b>02</b><span>Material + structural proposal</span></div>
-      <div class="step"><b>03</b><span>Fabrication + curing</span></div>
-      <div class="step"><b>04</b><span>Delivery + installation</span></div>
+    <h2 class="commission-title display">Pokrenite posao<br />bez zastoja.</h2>
+    <div class="commission-steps" aria-label="Proces saradnje">
+      <div class="step"><b>01</b><span>Kontakt / lokacija / potrebe</span></div>
+      <div class="step"><b>02</b><span>Ponuda kase + materijala</span></div>
+      <div class="step"><b>03</b><span>Fiskalizacija + unos artikala</span></div>
+      <div class="step"><b>04</b><span>Terenska isporuka + obuka</span></div>
     </div>
     <div class="direct">
-      Direct contact<br />
-      <a href="mailto:workshop@ferrum.example">workshop@ferrum.example</a><br />
-      <a href="tel:+381000000000">+381 (0)00 000 000</a><br />
-      Serbia / by appointment
+      Kontakt servisa<br />
+      Mirko Vranić (serviser)<br />
+      <a href="mailto:vm.mobile.vranic@gmail.com">vm.mobile.vranic@gmail.com</a><br />
+      <a href="tel:+381637495456">063 7 495 456</a><br />
+      Srpskih vladara 210, Petrovac<br />
+      Terenska podrška: Petrovac, Požarevac, Kučevo, Despotovac, Velika Plana, Svilajnac, Majdanpek, Golubac, Malo Crniće<br />
+      <a href="#fb">Facebook</a> / <a href="#ig">Instagram</a>
     </div>
     <div class="form-wrap">
       <form class="form-grid" id="commission-form">
         <div class="field">
-          <label for="name">Name *</label>
+          <label for="name">Ime i prezime / Naziv firme *</label>
           <input id="name" name="name" autocomplete="name" required />
         </div>
         <div class="field">
-          <label for="email">Email *</label>
+          <label for="email">Email adresa *</label>
           <input id="email" name="email" type="email" autocomplete="email" required />
         </div>
         <div class="field">
-          <label for="location">Project location *</label>
-          <input id="location" name="location" required />
+          <label for="location">Lokacija (Mesto / Opština) *</label>
+          <input id="location" name="location" placeholder="NPR. PETROVAC, POŽAREVAC, KUČEVO..." required />
         </div>
         <div class="field">
-          <label for="type">Object type *</label>
+          <label for="type">Vrsta usluge *</label>
           <select id="type" name="type" required>
-            <option value="">Select</option>
-            <option>Table</option>
-            <option>Bench</option>
-            <option>Console</option>
-            <option>Other structure</option>
+            <option value="">Izaberite</option>
+            <option>Servis kase</option>
+            <option>Kupovina nove kase</option>
+            <option>Kancelarijski materijal</option>
+            <option>Stručne konsultacije</option>
           </select>
         </div>
         <div class="field">
-          <label for="dimensions">Approx. dimensions</label>
-          <input id="dimensions" name="dimensions" placeholder="L × W × H / MM" />
+          <label for="dimensions">Obim posla</label>
+          <input id="dimensions" name="dimensions" placeholder="NPR. BROJ ARTIKALA, KOLIČINA ROLNI" />
         </div>
         <div class="field">
-          <label for="timeframe">Target timeframe</label>
-          <input id="timeframe" name="timeframe" placeholder="MONTH / YEAR" />
+          <label for="timeframe">Rok za realizaciju</label>
+          <input id="timeframe" name="timeframe" placeholder="NPR. HITNO, OVE NEDELJE, MESEC" />
         </div>
         <div class="field full">
-          <label for="brief">Commission brief *</label>
-          <textarea id="brief" name="brief" required placeholder="OBJECT, SITE, USE, CONSTRAINTS"></textarea>
+          <label for="brief">Opis zahteva *</label>
+          <textarea id="brief" name="brief" required placeholder="DETALJI O KVARU KASE, MODELU ILI SPISAK MATERIJALA"></textarea>
         </div>
         <button class="submit" type="submit">
-          <span>Send commission brief</span>
+          <span>Pošaljite zahtev servisu</span>
           <span>↗</span>
         </button>
         <p class="form-status" id="form-status" aria-live="polite"></p>
@@ -61,8 +64,8 @@
     </div>
   </div>
   <footer class="footer">
-    <div class="footer-mark">FERRUM</div>
-    <div>Forged objects<br />Steel / concrete / fire</div>
-    <div>© 2026<br />Privacy / legal</div>
+    <div class="footer-mark">VM MOBILE</div>
+    <div>Prodaja i servis fiskalnih kasa<br />Petrovac, Požarevac i okolne opštine</div>
+    <div>© 2026<br />Privatnost / pravne napomene</div>
   </footer>
 </section>

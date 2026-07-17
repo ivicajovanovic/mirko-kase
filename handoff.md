@@ -1,12 +1,12 @@
-# FERRUM — Astro Handoff Dokumentacija
+# VM MOBILE — Astro Handoff Dokumentacija
 
-Ovaj dokument služi kao primopredajni (handoff) fajl za projekat **FERRUM**, koji je uspešno transformisan iz jedne statičke HTML stranice u modularni **Astro framework** projekat.
+Ovaj dokument služi kao primopredajni (handoff) fajl za projekat **VM MOBILE**, koji je transformisan iz statičke prezentacije u modularni **Astro framework** sa srpskim jezikom, novim vizuelnim identitetom i fokusom na prodaju i servis fiskalnih kasa i potrošnog materijala.
 
 ---
 
 ## 🛠️ Tehnološki Stack
 
-1. **Framework:** [Astro v5](https://astro.build/) (trenutni industrijski standard za brze i dizajn-orijentisane sajtove).
+1. **Framework:** [Astro v5](https://astro.build/)
 2. **Stilovi:** Čist Vanilla CSS, smešten u [global.css](file:///home/ivica1979/projekti/mirko-kase/src/styles/global.css).
 3. **JS/TS:** TypeScript (za stabilnost tipova u klijentskim skriptama).
 4. **Slike:** Sve slike su lokalizovane i nalaze se u folderu `public/images/`.
@@ -20,19 +20,21 @@ Astro projekat je organizovan na sledeći način:
 ```text
 mirko-kase/
 ├── public/
-│   └── images/                # Lokalizovane slike sa Unsplash-a
-│       ├── hero.jpg
-│       ├── manifest.jpg
-│       ├── ledger-steel.jpg
-│       └── ... (ostalih 7 slika)
+│   └── images/                # Lokalizovane nove slike sa Unsplash-a
+│       ├── hero.jpg           # Slika kase/terminala na Hero sekciji
+│       ├── manifest.jpg       # Serviser na poslu
+│       ├── ledger-steel.jpg   # Detalj beskontaktnog plaćanja
+│       ├── ledger-concrete.jpg # Kancelarijski materijal (rolne)
+│       ├── ledger-site.jpg    # Servisno vozilo na putu
+│       └── ... (ostale detaljne slike radova)
 ├── src/
 │   ├── components/            # Pojedinačne sekcije sajta
 │   │   ├── Hero.astro         # Početni ekran sa sliderom
-│   │   ├── Material.astro     # Detalji o materijalima i ledger tabela
-│   │   ├── Work.astro         # Portfolio izabranih radova
-│   │   └── Commission.astro   # Forma za naručivanje i footer
+│   │   ├── Material.astro     # Usluge (Kase, Materijal, Teren)
+│   │   ├── Work.astro         # Radovi (Prodaja/Servis, Rolne, Konsultacije)
+│   │   └── Commission.astro   # Forma za naručivanje, kontakt i footer
 │   ├── layouts/
-│   │   └── Layout.astro       # Glavni HTML šablon, globalni skriptovi
+│   │   └── Layout.astro       # Glavni HTML šablon, globalni skriptovi i prevodi
 │   ├── pages/
 │   │   └── index.astro        # Glavna stranica koja sklapa sekcije
 │   └── styles/
@@ -40,7 +42,7 @@ mirko-kase/
 ├── astro.config.mjs           # Astro konfiguracioni fajl
 ├── package.json               # Zavisnosti i skripte
 ├── tsconfig.json              # TypeScript konfiguracija
-└── ferrum-final-v10 (2).html  # Originalni HTML (ostavljen kao backup)
+└── handoff.md                 # Ova dokumentacija
 ```
 
 ---
@@ -53,36 +55,34 @@ U korenu projekta možeš izvršavati sledeće komande:
     ```bash
     npm run dev
     ```
-    Sajt se pokreće na adresi [http://localhost:4321](http://localhost:4321) sa podrškom za *Hot Module Replacement* (sve promene se automatski osvežavaju bez reload-a).
-*   **Build za produkciju:**
+    Sajt se pokreće na adresi [http://localhost:4321](http://localhost:4321).
+*   **Build za produkciju (Generisanje statičkog sajta):**
     ```bash
     npm run build
     ```
-    Kompiluje projekat u ultra-brze, statičke HTML/CSS/JS fajlove unutar `dist/` foldera.
+    Kompiluje projekat u statičke HTML/CSS/JS fajlove unutar `dist/` foldera.
 *   **Lokalni pregled produkcionog build-a:**
     ```bash
     npm run preview
     ```
-    Pokreće server koji simulira produkciono okruženje na osnovu fajlova iz `dist/` foldera.
 
 ---
 
-## 🎨 Ključne Karakteristike i Implementacija
+## 🎨 Specifičnosti Dizajna i Implementacije
 
-1. **Učitavanje resursa (LCP):** Sve slike su sačuvane lokalno. To poboljšava brzinu učitavanja jer browser više ne mora da razrešava eksterne URL domene ka Unsplash-u.
-2. **Rešavanje asinhronog učitavanja stilova (Race Condition):**
-   * Svi JS skriptovi su bezbedno obmotani u `window.addEventListener('load')` unutar [Layout.astro](file:///home/ivica1979/projekti/mirko-kase/src/layouts/Layout.astro). Ovo sprečava da se animacije i `IntersectionObserver` pokrenu pre nego što Vite učita CSS u dev modu.
-3. **Funkcionalnosti prenete 1:1:**
-   * **Custom Cursor:** Tačka i kursor koji menja oblike na hover.
-   * **Interactive Hero Slider:** Klizač koji deli sliku i tekst na vrhu stranice (drag & drop i tastatura).
-   * **Scroll Reveal:** Postepeno otkrivanje slika prilikom skrolovanja (`clip-path` animacije).
-   * **NFC/Folio Sidebar Tracker:** Automatsko praćenje i promena teksta u levom sidebaru na osnovu sekcije u fokusu.
+1. **Stilovi i Layout:** Zadržan je prvobitni brutalistički stil, paleta boja (crna + signalno žuta), spacing, tipografija, animacije i struktura grida.
+2. **Klijentske skripte ([Layout.astro](file:///home/ivica1979/projekti/mirko-kase/src/layouts/Layout.astro)):**
+   * Sve skripte su obmotane u `load` listener da bi se izbeglo izvršavanje pre učitavanja stilova u Vite-u (izbegnuta praznina/nevidljivost slika).
+   * **Custom Cursor:** Tačka od 10px prati miš i menja dimenzije na hover slika i linkova.
+   * **Hero Slider Divider:** Klizač za promenu razmere slike na vrhu (podržava tastaturu).
+   * **NFC/Folio Tracker:** Prati skrolovanje sekcija i ažurira levi sidebar u `00 / POČETAK`, `01 / USLUGE`, `02 / RADOVI`, `03 / KONTAKT`.
+3. **Kontakt i društvene mreže:**
+   * Ubačeni podaci servisera Mirka Vranića: telefon `063 7 495 456`, adresa `Srpskih vladara 210, Petrovac`.
+   * Dodati su linkovi ka Facebook-u i Instagram-u u sekciji za direktan kontakt.
 
 ---
 
-## 🚀 Sledeći Koraci za Dalji Razvoj
+## 🚀 Dalji Razvoj
 
-Zahvaljujući prelasku na Astro, dalji razvoj je znatno lakši:
-1. **Dynamic Portfolio:** Možeš kreirati kolekciju sadržaja (Content Collections) za projekte u `src/content/projects/` koristeći Markdown fajlove, čime bi se portfolio u `Work.astro` automatski generisao iz fajlova.
-2. **Konekcija forme:** Forma u `Commission.astro` se može lako povezati sa API endpointom (npr. Astro API rute ili eksterni servis kao Formspree).
-3. **SEO optimizacija:** SEO tagovi se mogu dinamizovati direktno kroz props parametre u `Layout.astro`.
+*   Za bilo kakvu promenu tekstova, direktno menjaš sadržaj u `.astro` fajlovima unutar `src/components/`.
+*   Sve slike koje se nalaze u `public/images/` možeš zameniti sopstvenim fotografijama iz servisa ili sa terena, pod uslovom da zadržiš iste nazive fajlova (`hero.jpg`, `manifest.jpg` itd.).
