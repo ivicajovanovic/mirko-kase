@@ -11,7 +11,7 @@ Ovaj dokument sadrži zvanične tekstove (copy) za sajt **VM MOBILE**, organizov
     *(Jasno pozicioniranje firme od prvog kontakta).*
 *   **Stavke u navigaciji (Desktop i Mobilni):**
     *   `01 Usluge`
-    *   `02 Radovi`
+    *   `02 Servis`
     *   `03 Kontakt`
 *   **Indikator lokacije i godine:**
     `PETROVAC / 2026`
@@ -19,8 +19,9 @@ Ovaj dokument sadrži zvanične tekstove (copy) za sajt **VM MOBILE**, organizov
 *   **Tekst bočne trake (Folio Tracker):**
     *   Prva sekcija: `00 / POČETAK`
     *   Druga sekcija (Usluge): `01 / USLUGE`
-    *   Treća sekcija (Radovi): `02 / RADOVI`
-    *   Četvrta sekcija (Kontakt): `03 / KONTAKT`
+    *   Treća sekcija (Servis): `02 / SERVIS`
+    *   Četvrta sekcija (Kancelarija): `03 / KANCELARIJA`
+    *   Peta sekcija (Kontakt): `04 / KONTAKT`
     *   Tekst na dnu trake: `KASE / SERVIS / TEREN`
 
 ---
@@ -75,7 +76,7 @@ Ovaj dokument sadrži zvanične tekstove (copy) za sajt **VM MOBILE**, organizov
 
 ---
 
-## 4. Sekcija: Izabrani Radovi i Rešenja (`src/components/Work.astro`)
+## 4. Sekcija: Servis (`src/components/Work.astro`)
 
 Ova sekcija prikazuje realne primere naših usluga u praksi, pružajući klijentima uvid u to kako rešavamo njihove probleme.
 
@@ -109,7 +110,34 @@ Ova sekcija prikazuje realne primere naših usluga u praksi, pružajući klijent
 
 ---
 
-## 5. Sekcija: Kontakt i Naručivanje (`src/components/Commission.astro`)
+## 5. Sekcija: Kancelarijski materijal (`src/components/Office.astro`)
+
+*   **Glavni naslov sekcije:**
+    `Papir, toneri & materijal.`
+*   **Manifest (Opis vrednosti):**
+    "Kompletan asortiman za svakodnevno poslovanje vašeg preduzeća. Posedujemo i dostavljamo sav potrošni materijal na vašu adresu. Kvalitetni toneri i termo rolne garantuju dugotrajan rad štampača i kasa."
+*   **Tabela usluga (Ledger):**
+    1.  **Fotokopir papir (`Pp`)**  
+        *Naziv:* `Fotokopir papir`  
+        *Opis:* "A4 i A3 papir vrhunske beline i gustine (80g) namenjen za štampače, fotokopir aparate i faks mašine. Pakovanja od 500 listova."
+    2.  **Termo rolne (`Tr`)**  
+        *Naziv:* `Termo rolne`  
+        *Opis:* "Termo rolne vrhunskog kvaliteta za sve tipove fiskalnih kasa, POS terminala i bankomata u standardnim širinama od 57mm i 80mm."
+    3.  **Toneri i kertridži (`Tn`)**  
+        *Naziv:* `Toneri & kertridži`  
+        *Opis:* "Originalni i visoko-kvalitetni kompatibilni toneri za laserske štampače i kertridži za sve brendove (HP, Canon, Samsung, Epson)."
+    4.  **Kancelarijski pribor (`Kp`)**  
+        *Naziv:* `Kancelarijski pribor`  
+        *Opis:* "Registratori, fascikle, koverte svih dimenzija, hemijske olovke, heftalice, bušači papira i sav ostali sitni kancelarijski potrošni materijal."
+*   **Sumarni parametri (Podnožje sekcije):**
+    *   `03` Kancelarija
+    *   `Pp` Fotokopir papir
+    *   `Tr` Termo rolne
+    *   `Tn` Toneri i pribor
+
+---
+
+## 6. Sekcija: Kontakt i Naručivanje (`src/components/Commission.astro`)
 
 *   **Glavni naslov sekcije:**
     `Pokrenite posao bez zastoja.`
@@ -143,7 +171,7 @@ Ova sekcija prikazuje realne primere naših usluga u praksi, pružajući klijent
 
 ---
 
-## 6. Podnožje stranice (Footer)
+## 7. Podnožje stranice (Footer)
 
 *   **Logotip:** `VM MOBILE`
 *   **Kratak info:** `Prodaja i servis fiskalnih kasa / Petrovac, Požarevac i okolne opštine`

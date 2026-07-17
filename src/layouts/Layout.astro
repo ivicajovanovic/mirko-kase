@@ -26,7 +26,7 @@ const {
     <header class="site-header">
       <a class="brand" href="#top" aria-label="VM MOBILE home"><b>VM MOBILE</b>&nbsp;/ FISKALNE KASE</a>
       <nav class="nav" aria-label="Primary navigation">
-        <a href="#material">01 Usluge</a><a href="#work">02 Radovi</a><a href="#commission">03 Kontakt</a>
+        <a href="#material">01 Usluge</a><a href="#work">02 Servis</a><a href="#office">03 Kancelarija</a><a href="#commission">04 Kontakt</a>
       </nav>
       <div class="place">
         <a href="tel:+381637495456" style="display: inline-flex; align-items: center; gap: 6px;">
@@ -38,7 +38,7 @@ const {
     </header>
 
     <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
-      <a href="#material"><span>01</span>Usluge</a><a href="#work"><span>02</span>Radovi</a><a href="#commission"><span>03</span>Kontakt</a>
+      <a href="#material"><span>01</span>Usluge</a><a href="#work"><span>02</span>Servis</a><a href="#office"><span>03</span>Kancelarija</a><a href="#commission"><span>04</span>Kontakt</a>
     </nav>
     
     <aside class="folio" aria-hidden="true">
@@ -55,7 +55,7 @@ const {
       // Strike targets animation
       const strikeTargets = document.querySelectorAll([
         '.brand', '.nav a', '.hero-title span', '.hero-intro', '.specimen',
-        '.eyebrow', '.manifest-title', '.works-title', '.project-title', '.commission-title'
+        '.eyebrow', '.manifest-title', '.works-title', '.office-title', '.project-title', '.commission-title'
       ].join(','));
       
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
