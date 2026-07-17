@@ -1,0 +1,232 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "FERRUM — Signal Yellow / V10", 
+  description = "FERRUM creates one-off furniture in forged steel and raw concrete." 
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="FERRUM home"><b>FERRUM</b>&nbsp;/ FORGED OBJECTS</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#material">01 Material</a><a href="#work">02 Work</a><a href="#commission">03 Commission</a>
+      </nav>
+      <div class="place">SRB / 2026</div>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">Index [+]</button>
+    </header>
+
+    <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
+      <a href="#material"><span>01</span>Material</a><a href="#work"><span>02</span>Work</a><a href="#commission"><span>03</span>Contact</a>
+    </nav>
+    
+    <aside class="folio" aria-hidden="true">
+      <span class="folio-section">00 / ENTRY</span>
+      <span class="folio-material">STEEL / CONCRETE / FIRE</span>
+    </aside>
+
+    <slot />
+
+    <script>
+    const init = () => {
+      // Strike targets animation
+      const strikeTargets = document.querySelectorAll([
+        '.brand', '.nav a', '.hero-title span', '.hero-intro', '.specimen',
+        '.eyebrow', '.manifest-title', '.works-title', '.project-title', '.commission-title'
+      ].join(','));
+      
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        strikeTargets.forEach(element => element.classList.add('voltage-strike'));
+        window.setTimeout(() => {
+          strikeTargets.forEach(element => element.classList.remove('voltage-strike'));
+        }, 110);
+      }
+
+      // Mobile menu toggle
+      const toggle = document.querySelector('.menu-toggle');
+      const menu = document.querySelector('.mobile-menu');
+      if (toggle && menu) {
+        const menuLinks = menu.querySelectorAll('a');
+        const closeMenu = () => {
+          menu.classList.remove('open');
+          document.body.classList.remove('menu-open');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.textContent = 'Index [+]';
+        };
+        toggle.addEventListener('click', () => {
+          const open = !menu.classList.contains('open');
+          menu.classList.toggle('open', open);
+          document.body.classList.toggle('menu-open', open);
+          toggle.setAttribute('aria-expanded', String(open));
+          toggle.textContent = open ? 'Close [×]' : 'Index [+]';
+        });
+        menuLinks.forEach(link => link.addEventListener('click', closeMenu));
+        document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+      }
+
+      // Folio Section Intersection Observer
+      const folioSection = document.querySelector('.folio-section');
+      const sections = document.querySelectorAll('[data-section]');
+      if (folioSection && sections.length > 0) {
+        const observer = new IntersectionObserver(entries => {
+          const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible && visible.target instanceof HTMLElement) {
+            folioSection.textContent = visible.target.dataset.section || '';
+          }
+        }, { rootMargin: '-30% 0px -55% 0px', threshold: [0, .25, .5] });
+        sections.forEach(section => observer.observe(section));
+      }
+
+      // Form validation
+      const form = document.querySelector('#commission-form');
+      const status = document.querySelector('#form-status');
+      if (form && status) {
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+          if (!(form instanceof HTMLFormElement)) return;
+          if (!form.checkValidity()) {
+            status.textContent = 'Complete the marked fields before transmitting.';
+            form.reportValidity();
+            return;
+          }
+          status.textContent = 'Brief recorded. Connect this form to the workshop endpoint before launch.';
+          const submitSpan = form.querySelector('.submit span:first-child');
+          if (submitSpan) submitSpan.textContent = 'Brief recorded';
+        });
+      }
+
+      // Pointer: direct tracking
+      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+      if (finePointer.matches) {
+        const cursor = document.createElement('div');
+        cursor.className = 'ferrum-cursor';
+        cursor.setAttribute('aria-hidden', 'true');
+        document.body.append(cursor);
+        document.body.classList.add('cursor-ready');
+
+        let pointerX = -40;
+        let pointerY = -40;
+        let cursorFrame = 0;
+        const drawCursor = () => {
+          cursor.style.transform = `translate3d(${pointerX - 5}px, ${pointerY - 5}px, 0)`;
+          cursorFrame = 0;
+        };
+        document.addEventListener('pointermove', event => {
+          pointerX = event.clientX;
+          pointerY = event.clientY;
+          if (!cursorFrame) cursorFrame = requestAnimationFrame(drawCursor);
+        }, { passive: true });
+        
+        document.addEventListener('pointerdown', () => cursor.classList.add('is-pressed'));
+        document.addEventListener('pointerup', () => cursor.classList.remove('is-pressed'));
+        
+        document.querySelectorAll('figure').forEach(image => {
+          image.addEventListener('pointerenter', () => cursor.classList.add('is-over-image'));
+          image.addEventListener('pointerleave', () => cursor.classList.remove('is-over-image'));
+        });
+        
+        document.querySelectorAll('a, button, input, select, textarea').forEach(action => {
+          action.addEventListener('pointerenter', () => cursor.classList.add('is-over-action'));
+          action.addEventListener('pointerleave', () => cursor.classList.remove('is-over-action'));
+        });
+        
+        document.documentElement.addEventListener('mouseleave', () => cursor.style.display = 'none');
+        document.documentElement.addEventListener('mouseenter', () => cursor.style.display = 'block');
+      }
+
+      // Images reveal without JS support
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const revealFigures = [...document.querySelectorAll('figure:not(.hero-image)')];
+      revealFigures.forEach(figure => figure.classList.add('reveal'));
+      document.body.classList.add('motion-ready');
+      if (reducedMotion) {
+        revealFigures.forEach(figure => figure.classList.add('is-revealed'));
+      } else {
+        const revealObserver = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            requestAnimationFrame(() => entry.target.classList.add('is-revealed'));
+            revealObserver.unobserve(entry.target);
+          });
+        }, { root: null, rootMargin: '0px 0px -12% 0px', threshold: .08 });
+        revealFigures.forEach(figure => revealObserver.observe(figure));
+      }
+
+      // Hero reveal control
+      const hero = document.querySelector('.hero');
+      const heroGrid = document.querySelector('.hero-grid');
+      const heroDivider = document.querySelector('.hero-divider');
+      if (hero && heroGrid && heroDivider) {
+        let heroCut = window.innerWidth <= 800 ? 32 : 44;
+        let draggingDivider = false;
+
+        const setHeroCut = (value: number) => {
+          heroCut = Math.max(0, Math.min(100, value));
+          (hero as HTMLElement).style.setProperty('--hero-cut', `${heroCut}%`);
+          heroDivider.setAttribute('aria-valuenow', String(Math.round(heroCut)));
+          heroDivider.setAttribute('aria-valuetext', `${Math.round(100 - heroCut)} percent of image visible`);
+        };
+
+        const setCutFromPointer = (event: PointerEvent) => {
+          const bounds = heroGrid.getBoundingClientRect();
+          setHeroCut(((event.clientX - bounds.left) / bounds.width) * 100);
+        };
+
+        heroDivider.addEventListener('pointerdown', event => {
+          draggingDivider = true;
+          heroDivider.setPointerCapture(event.pointerId);
+          setCutFromPointer(event);
+        });
+
+        heroDivider.addEventListener('pointermove', event => {
+          if (draggingDivider) setCutFromPointer(event);
+        });
+
+        const stopDivider = (event: PointerEvent) => {
+          draggingDivider = false;
+          if (heroDivider.hasPointerCapture(event.pointerId)) {
+            heroDivider.releasePointerCapture(event.pointerId);
+          }
+        };
+
+        heroDivider.addEventListener('pointerup', stopDivider);
+        heroDivider.addEventListener('pointercancel', stopDivider);
+        heroDivider.addEventListener('keydown', event => {
+          if (event instanceof KeyboardEvent) {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            if (event.key === 'ArrowLeft') setHeroCut(heroCut - 4);
+            if (event.key === 'ArrowRight') setHeroCut(heroCut + 4);
+            if (event.key === 'Home') setHeroCut(0);
+            if (event.key === 'End') setHeroCut(100);
+          }
+        });
+
+        setHeroCut(heroCut);
+      }
+    };
+
+    if (document.readyState === 'complete') {
+      init();
+    } else {
+      window.addEventListener('load', init);
+    }
+    </script>
+  </body>
+</html>

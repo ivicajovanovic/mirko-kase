@@ -1,0 +1,68 @@
+---
+// Commission section for FERRUM
+---
+<section class="commission" id="commission" data-section="03 / Commission">
+  <div class="grid">
+    <h2 class="commission-title display">Build something<br />that stays.</h2>
+    <div class="commission-steps" aria-label="Commission process">
+      <div class="step"><b>01</b><span>Brief / site / dimensions</span></div>
+      <div class="step"><b>02</b><span>Material + structural proposal</span></div>
+      <div class="step"><b>03</b><span>Fabrication + curing</span></div>
+      <div class="step"><b>04</b><span>Delivery + installation</span></div>
+    </div>
+    <div class="direct">
+      Direct contact<br />
+      <a href="mailto:workshop@ferrum.example">workshop@ferrum.example</a><br />
+      <a href="tel:+381000000000">+381 (0)00 000 000</a><br />
+      Serbia / by appointment
+    </div>
+    <div class="form-wrap">
+      <form class="form-grid" id="commission-form">
+        <div class="field">
+          <label for="name">Name *</label>
+          <input id="name" name="name" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="email">Email *</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="location">Project location *</label>
+          <input id="location" name="location" required />
+        </div>
+        <div class="field">
+          <label for="type">Object type *</label>
+          <select id="type" name="type" required>
+            <option value="">Select</option>
+            <option>Table</option>
+            <option>Bench</option>
+            <option>Console</option>
+            <option>Other structure</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dimensions">Approx. dimensions</label>
+          <input id="dimensions" name="dimensions" placeholder="L × W × H / MM" />
+        </div>
+        <div class="field">
+          <label for="timeframe">Target timeframe</label>
+          <input id="timeframe" name="timeframe" placeholder="MONTH / YEAR" />
+        </div>
+        <div class="field full">
+          <label for="brief">Commission brief *</label>
+          <textarea id="brief" name="brief" required placeholder="OBJECT, SITE, USE, CONSTRAINTS"></textarea>
+        </div>
+        <button class="submit" type="submit">
+          <span>Send commission brief</span>
+          <span>↗</span>
+        </button>
+        <p class="form-status" id="form-status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="footer-mark">FERRUM</div>
+    <div>Forged objects<br />Steel / concrete / fire</div>
+    <div>© 2026<br />Privacy / legal</div>
+  </footer>
+</section>
