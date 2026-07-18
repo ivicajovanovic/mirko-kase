@@ -19,6 +19,9 @@ Before writing any code or making modifications, you MUST discover and document 
 - [ ] **Design System:** Does a variables or token file exist? Check and list the primary variables.
 - [ ] **Target Device Layout:** [ ] Desktop-First [ ] Mobile-First
 - [ ] **Animations Spec:** Do scroll animations, page transitions, or reveal states exist?
+- [ ] **Client Branding & Identity:** Has the client defined their custom brand color codes (background, text, muted, accent) and typography (display serif, monospace)?
+  - *If yes:* Retrieve the exact brand assets and plug them into the Token Skeleton below.
+  - *If no:* Propose a cohesive brutalist theme (e.g. dark industrial, high-contrast warning) to the user/client, get their explicit approval, and then write the custom styles. Do NOT assume colors or fonts.
 
 ---
 
@@ -78,21 +81,21 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 
 ## 5. BRUTALIST TOKEN SKELETON (DIZAJN TOKENI)
 
-Use these standard variables to keep colors, spacing, and lines consistent:
+Use this architectural skeleton to organize the typography and color tokens. You MUST NOT use default values without consulting the user. Proactively prompt the user to define these in coordination with the client.
 
 ```css
 :root {
-  /* Tipografija */
-  --font-display: 'Bodoni Moda', Didot, 'Times New Roman', serif;
-  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+  /* Tipografija — DEFINIŠI U SARADNJI SA KLIJENTOM / KORISNIKOM */
+  --font-display: <client-display-serif-font>, Georgia, serif;
+  --font-mono:    <client-monospace-font>, monospace;
   
-  /* Boje — maksimalno 4, svaka sa jasnom ulogom */
-  --color-bg:     #11110f;      /* dominantna pozadina (night) */
-  --color-text:   #e2ded2;      /* primarni tekst (bone) */
-  --color-muted:  #8b8982;      /* sekundarni tekst, labele (concrete) */
-  --color-accent: #fdb92e;      /* jedina boja za akcente (rust) */
+  /* Boje (Maksimalno 4) — DEFINIŠI U SARADNJI SA KLIJENTOM / KORISNIKOM */
+  --color-bg:     <primary-bg-color>;      /* dominantna pozadina */
+  --color-text:   <primary-text-color>;    /* čitljiv tekst */
+  --color-muted:  <muted-label-color>;     /* sekundarni tekst, labele */
+  --color-accent: <brand-accent-color>;    /* jedina akcentna boja (retko se koristi) */
   
-  /* Linije */
+  /* Linije i Konstrukcije */
   --line:         1px;
   --line-heavy:   2px;
   
@@ -104,6 +107,10 @@ Use these standard variables to keep colors, spacing, and lines consistent:
   --space-xl:  clamp(3rem, 8vw, 6rem);
 }
 ```
+
+> [!IMPORTANT]
+> **ESTETIKA I IDENTITET SE NE PREUZIMAJU AUTOMATSKI IZ OVOG ŠABLONA.**
+> Kao agent, ne smeš pretpostavljati boje i fontove klijenta. Ako klijent nema definisan identitet, tvoja je dužnost da predložiš vizuelni pravac (npr. industrijski tamni mod ili oštri tehnički kontrast) i zatražiš eksplicitan pristanak pre nego što popuniš varijable konkretnim vrednostima.
 
 ---
 
