@@ -48,6 +48,7 @@ const {
     <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
       <a href="#material"><span>01</span>Usluge</a><a href="#work"><span>02</span>Servis</a><a href="#office"><span>03</span>Kancelarija</a><a href="#commission"><span>04</span>Kontakt</a>
     </nav>
+    <div class="mobile-menu-overlay" id="mobile-menu-overlay" aria-hidden="true"></div>
     
     <aside class="folio" aria-hidden="true">
       <span class="folio-section">00 / POČETAK</span>
@@ -76,21 +77,56 @@ const {
       // Mobile menu toggle
       const toggle = document.querySelector('.menu-toggle');
       const menu = document.querySelector('.mobile-menu');
+      const overlay = document.querySelector('#mobile-menu-overlay');
       if (toggle && menu) {
         const menuLinks = menu.querySelectorAll('a');
+        const focusableElements = [toggle, ...menu.querySelectorAll('a')];
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        const handleFocusTrap = (event: KeyboardEvent) => {
+          if (event.key === 'Tab') {
+            if (event.shiftKey) {
+              if (document.activeElement === firstFocusable) {
+                (lastFocusable as HTMLElement).focus();
+                event.preventDefault();
+              }
+            } else {
+              if (document.activeElement === lastFocusable) {
+                (firstFocusable as HTMLElement).focus();
+                event.preventDefault();
+              }
+            }
+          }
+        };
+
         const closeMenu = () => {
           menu.classList.remove('open');
+          overlay?.classList.remove('open');
           document.body.classList.remove('menu-open');
           toggle.setAttribute('aria-expanded', 'false');
           toggle.textContent = 'Meni [+]';
+          document.removeEventListener('keydown', handleFocusTrap);
         };
+
         toggle.addEventListener('click', () => {
           const open = !menu.classList.contains('open');
           menu.classList.toggle('open', open);
+          overlay?.classList.toggle('open', open);
           document.body.classList.toggle('menu-open', open);
           toggle.setAttribute('aria-expanded', String(open));
           toggle.textContent = open ? 'Zatvori [×]' : 'Meni [+]';
+          if (open) {
+            document.addEventListener('keydown', handleFocusTrap);
+            const firstLink = menu.querySelector('a');
+            firstLink?.focus();
+          } else {
+            document.removeEventListener('keydown', handleFocusTrap);
+            (toggle as HTMLElement).focus();
+          }
         });
+
+        overlay?.addEventListener('click', closeMenu);
         menuLinks.forEach(link => link.addEventListener('click', closeMenu));
         document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
       }
