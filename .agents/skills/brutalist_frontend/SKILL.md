@@ -10,10 +10,13 @@ This document is a strict execution protocol for building responsive, high-perfo
 ---
 
 ## 1. PRE-FLIGHT CONTEXT DISCOVERY (PRE NEGO ŠTO POČNEŠ)
-Before writing any code or making modifications, you MUST discover and document:
-- [ ] **Framework:** (e.g. Vanilla HTML/CSS, Astro, React, Next.js)
-- [ ] **CSS Approach:** (e.g. Vanilla CSS, Tailwind, CSS Modules)
-- [ ] **Design System:** Does a variables or token file exist? (e.g. `src/styles/global.css` `:root` variables)
+Before writing any code or making modifications, you MUST discover and document the following context:
+- [ ] **Framework & Styling Strategy:**
+  - *Vanilla HTML/CSS/Astro:* Put all variables in `:root` in the main `.css` file.
+  - *Tailwind CSS:* NEVER write custom `@media` queries manually. Use Tailwind's responsive prefixes (e.g. `sm:`, `md:`, `lg:`).
+  - *CSS Modules:* Each responsive style block goes inside the corresponding `.module.css` file, not in the global stylesheet.
+  - *If you cannot determine the framework:* STOP and ask the user. Do not make assumptions.
+- [ ] **Design System:** Does a variables or token file exist? Check and list the primary variables.
 - [ ] **Target Device Layout:** [ ] Desktop-First [ ] Mobile-First
 - [ ] **Animations Spec:** Do scroll animations, page transitions, or reveal states exist?
 
@@ -54,32 +57,79 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 - **ALWAYS** place labels strictly above inputs.
 - **ALWAYS** make the submit button full-width on mobile.
 
+### If building a Navigation / Header:
+- **NEVER:** Use a hamburger menu that toggles `display: none` / `display: block` inline.
+- **ALWAYS:** Use CSS `transform: translateX()` for the sliding drawer transition.
+- **ALWAYS:** Ensure focus trapping, `aria-expanded` toggle state, background scroll locking, and Escape key listeners are attached.
+
+### If building a Testimonials / Social Proof Section:
+- **NEVER:** Use carousels with autoplay, infinite loops, or tiny dots.
+- **ALWAYS:** Stack them vertically on mobile, treating the quote as a styled block element with an asymmetric grid and numbered indexes.
+
+### If building a Pricing Section:
+- **NEVER:** Fit 3 columns or cards side-by-side on mobile.
+- **ALWAYS:** Stack them vertically or use an accordion layout with a sticky CTA button at the bottom viewport.
+
+### If building a Modal / Drawer:
+- **ALWAYS:** Apply `overscroll-behavior: contain` to prevent scroll chaining.
+- **ALWAYS:** Add `aria-modal="true"`, `role="dialog"`, keyboard Focus Trap, and Escape key handlers.
+
 ---
 
-## 5. CODE RECIPES (KODNI RECEPTI)
+## 5. BRUTALIST TOKEN SKELETON (DIZAJN TOKENI)
+
+Use these standard variables to keep colors, spacing, and lines consistent:
+
+```css
+:root {
+  /* Tipografija */
+  --font-display: 'Bodoni Moda', Didot, 'Times New Roman', serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Boje — maksimalno 4, svaka sa jasnom ulogom */
+  --color-bg:     #11110f;      /* dominantna pozadina (night) */
+  --color-text:   #e2ded2;      /* primarni tekst (bone) */
+  --color-muted:  #8b8982;      /* sekundarni tekst, labele (concrete) */
+  --color-accent: #fdb92e;      /* jedina boja za akcente (rust) */
+  
+  /* Linije */
+  --line:         1px;
+  --line-heavy:   2px;
+  
+  /* Spacing skala (fluidne clamp vrednosti) */
+  --space-xs:  clamp(0.5rem, 1vw, 0.75rem);
+  --space-sm:  clamp(0.75rem, 2vw, 1rem);
+  --space-md:  clamp(1rem, 3vw, 1.5rem);
+  --space-lg:  clamp(2rem, 5vw, 3rem);
+  --space-xl:  clamp(3rem, 8vw, 6rem);
+}
+```
+
+---
+
+## 6. CODE RECIPES (KODNI RECEPTI)
 
 Use these copy-pasteable CSS/HTML/JS values for common layout problems:
 
 ### Fluid Typography (Fluidna tipografija)
 ```css
 /* Fluid clamp scaling, preventing fixed px or overflow */
-font-size: clamp(2rem, 8vw, 4.5rem) !important;
-line-height: 1.05 !important;
+font-size: clamp(2rem, 8vw, 4.5rem);
+line-height: 1.05;
 ```
 
 ### Safe Area for Notch Devices (Notch podrška)
 ```css
 /* Add safe area inset offsets to bottom/top positioning */
-padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-padding-top: calc(8px + env(safe-area-inset-top)) !important;
+padding-bottom: calc(24px + env(safe-area-inset-bottom));
+padding-top: calc(8px + env(safe-area-inset-top));
 ```
 
 ### iOS Zoom Prevention on Inputs (Sprečavanje iOS auto-zooma)
 ```css
 /* iOS zooms viewport automatically on focus if font-size < 16px */
 input, select, textarea {
-  font-size: 16px !important;
-  line-height: 1.5 !important;
+  font-size: 16px !important; /* Normalization: !important is allowed here */
 }
 ```
 
@@ -93,15 +143,70 @@ min-height: 100dvh;
 ```css
 /* Deactivate Webkit tap highlight color */
 a, button, input, select, textarea, [role="button"] {
-  -webkit-tap-highlight-color: transparent !important;
+  -webkit-tap-highlight-color: transparent !important; /* Normalization: !important is allowed here */
 }
 
 /* Active touch press feedback transition */
 a:active, button:active, .submit:active, [role="button"]:active {
-  transform: scale(0.98) !important;
-  opacity: 0.85 !important;
-  transition: transform 0.1s ease, opacity 0.1s ease !important;
+  transform: scale(0.98);
+  opacity: 0.85;
+  transition: transform 0.1s ease, opacity 0.1s ease;
 }
+```
+
+### JavaScript: Hamburger Menu - Brutalist Drawer (Mobilni Meni)
+```javascript
+const nav = document.querySelector('[data-nav]');
+const toggle = document.querySelector('[data-nav-toggle]');
+const focusable = nav.querySelectorAll('a, button, [tabindex]');
+const firstFocus = focusable[0];
+const lastFocus = focusable[focusable.length - 1];
+
+const focusTrap = (e) => {
+  if (e.key === 'Tab') {
+    if (e.shiftKey && document.activeElement === firstFocus) {
+      lastFocus.focus();
+      e.preventDefault();
+    } else if (!e.shiftKey && document.activeElement === lastFocus) {
+      firstFocus.focus();
+      e.preventDefault();
+    }
+  }
+};
+
+toggle.addEventListener('click', () => {
+  const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+  toggle.setAttribute('aria-expanded', String(!isOpen));
+  nav.setAttribute('data-open', String(!isOpen));
+  document.body.style.overflow = isOpen ? '' : 'hidden'; // Scroll lock
+  if (!isOpen) {
+    document.addEventListener('keydown', focusTrap);
+    firstFocus.focus();
+  } else {
+    document.removeEventListener('keydown', focusTrap);
+  }
+});
+
+// Escape key closure
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+    toggle.click();
+  }
+});
+```
+
+### JavaScript: Scroll Reveal without Libraries (Intersection Observer)
+```javascript
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.setAttribute('data-visible', 'true');
+      observer.unobserve(e.target); // Trigger once
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
 ```
 
 ### Anti-Flicker Hero Image Reveal Setup
@@ -132,9 +237,17 @@ const setHeroCut = (value) => {
 
 ---
 
-## 6. COMPARATIVE CODE EXAMPLES (PRIMERI OUTPUTA)
+## 7. !important PROTOCOL (KADA SE KORISTI)
+- **NEVER** use `!important` as a shortcut for specificity problems in your layout code. Solve the issue using proper CSS selector specificity.
+- **USE ONLY** for browser normalizations (like iOS zoom fix or disabling default tap highlight).
+- **USE ONLY** to override styling from third-party libraries (e.g. Google Maps default styles, libraries).
+- **NEVER** use it on custom grid, layout, or spacing values.
 
-### Scenario: Creating a Service List row on Mobile
+---
+
+## 8. COMPARATIVE CODE EXAMPLES (PRIMERI OUTPUTA)
+
+### Example 1: Service List Row on Mobile
 
 #### ❌ BAD (Generic, squeezed layout):
 ```css
@@ -146,11 +259,11 @@ const setHeroCut = (value) => {
   padding: 10px;
 }
 .service-title {
-  font-size: 14px; /* Too small for mobile */
+  font-size: 14px;
 }
 .service-desc {
-  font-size: 11px; /* Illegible */
-  letter-spacing: 0.2em; /* Too wide for mobile reading */
+  font-size: 11px;
+  letter-spacing: 0.2em;
 }
 ```
 
@@ -162,31 +275,90 @@ const setHeroCut = (value) => {
     display: grid;
     grid-template-columns: 1fr; /* Single column stack */
     padding: 16px 0;
-    border-bottom: var(--line) solid var(--night);
+    border-bottom: var(--line) solid var(--color-bg);
   }
   .service-code {
     font-size: 24px;
-    font-family: var(--mono);
-    color: var(--rust);
+    font-family: var(--font-mono);
+    color: var(--color-accent);
   }
   .service-title {
     font-size: clamp(1.8rem, 8vw, 2.5rem);
-    font-family: var(--serif);
+    font-family: var(--font-display);
     word-break: break-word;
     overflow-wrap: break-word;
   }
   .service-desc {
-    font-size: 16px; /* High legibility */
-    line-height: 1.55; /* Relaxed readability spacing */
-    letter-spacing: 0.02em; /* Clean reading density */
+    font-size: 16px;
+    line-height: 1.55;
+    letter-spacing: 0.02em;
     margin-top: 8px;
+  }
+}
+```
+
+### Example 2: Pricing Columns on Mobile
+
+#### ❌ BAD (Three columns squished or horizontal overflow):
+```css
+/* Stylesheet */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Horizontally squishes on mobile */
+}
+```
+
+#### ✅ GOOD (Stacked vertical layout with clean spacing):
+```css
+/* Stylesheet */
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr; /* Stacks to single column */
+    gap: var(--space-md);
+  }
+  .pricing-card {
+    border: var(--line) solid var(--color-text);
+    padding: var(--space-md);
+  }
+  .pricing-card:last-child {
+    border-bottom: var(--line-heavy) solid var(--color-accent);
+  }
+}
+```
+
+### Example 3: Menu Drawer Open/Close
+
+#### ❌ BAD (Abrupt display toggle):
+```css
+/* Stylesheet */
+.drawer {
+  display: none;
+}
+.drawer.open {
+  display: block; /* No transitions or animations supported */
+}
+```
+
+#### ✅ GOOD (Stepped transform translation):
+```css
+/* Stylesheet */
+@media (max-width: 768px) {
+  .drawer {
+    position: fixed;
+    right: 0;
+    width: min(80vw, 360px);
+    transform: translateX(100%);
+    transition: transform 0.18s steps(3, end);
+  }
+  .drawer[data-open="true"] {
+    transform: translateX(0);
   }
 }
 ```
 
 ---
 
-## 7. PRE-FLIGHT OUTPUT CHECKLIST (IZLAZNA ČEKLISTA)
+## 9. PRE-FLIGHT OUTPUT CHECKLIST (IZLAZNA ČEKLISTA)
 Before sending the final output, verify:
 - [ ] **Viewport Check:** Did you test on `1440px` to guarantee that the desktop layout remains 100% identical?
 - [ ] **Mobile Isolation:** Are all mobile layout additions encapsulated inside `@media (max-width: 768px)` or `@media (max-width: 480px)`?
@@ -195,4 +367,15 @@ Before sending the final output, verify:
 - [ ] **Accessibility Contrast:** Do all text elements meet at least WCAG AA (4.5:1) color contrast ratios?
 - [ ] **Scroll Padding:** Do all section wrappers with anchor links contain a `scroll-margin-top` to prevent header overlapping?
 - [ ] **Touch Target Size:** Are all interactive touch elements at least `44x44px` in clickable size?
-- [ ] **Overscroll Containment:** Is `overscroll-behavior: contain` attached to fixed drawers or modaly popups?
+- [ ] **Overscroll Containment:** Is `overscroll-behavior: contain` attached to fixed drawers or modal popups?
+
+## 10. BRUTALIST IDENTITY CHECK (PROVERA ESTETIKE)
+Verify that the output strictly adheres to the brutalist aesthetic:
+- [ ] Postoji li ijedan element sa border-radius > 0? → Ukloni ili zaokruži na 0.
+- [ ] Koristi li se ijedan od zabranjenih fontova (Inter, Roboto, Poppins, Open Sans)? → Zameni.
+- [ ] Ima li sekcija koja ponavlja layout prethodne? → Razbij je drugim layout modelom (npr. tabela umesto kolona).
+- [ ] Ima li centrirani hero? → Restrukturiraj u asimetrični raspored.
+- [ ] Ima li card grida sa 3 kolone na mobilnom? → Konvertuj u vertikalno skiciranu listu.
+- [ ] Ima li mekih senki (soft box-shadow) na ijednom elementu? → Ukloni ili zameni oštrim crnim senkama (`box-shadow: 4px 4px 0px 0px var(--color-bg)`).
+- [ ] Jesu li sva dugmad oštrih ivica (border-radius: 0)?
+- [ ] Postoji li barem jedan elemenat koji "krši" grid pravila? (namerna tenzija, npr. asimetrični prelaz ili negativna margina koja gura element u stranu).
