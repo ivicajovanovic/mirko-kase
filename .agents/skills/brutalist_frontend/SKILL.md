@@ -9,7 +9,7 @@ This document is a strict execution protocol for building responsive, high-perfo
 
 ---
 
-## 1. PRE-FLIGHT CONTEXT DISCOVERY (PRE NEGO ŠTO POČNEŠ)
+## 1. PRE-FLIGHT CONTEXT DISCOVERY
 Before writing any code or making modifications, you MUST discover and document the following context:
 - [ ] **Framework & Styling Strategy:**
   - *Vanilla HTML/CSS/Astro:* Put all variables in `:root` in the main `.css` file.
@@ -25,7 +25,7 @@ Before writing any code or making modifications, you MUST discover and document 
 
 ---
 
-## 2. STRICT ASSUMPTION LIMITS (NIKAD NE PRETPOSTAVLJAJ)
+## 2. STRICT ASSUMPTION LIMITS
 - **NEVER** assume the user wants animations (verify or await specific specs).
 - **NEVER** assume fonts are pre-loaded (always include `@font-face` or Google Fonts `@import` inside CSS if not present).
 - **NEVER** assume a global reset exists (always check for `box-sizing: border-box` and margins resets).
@@ -34,7 +34,7 @@ Before writing any code or making modifications, you MUST discover and document 
 
 ---
 
-## 3. PROHIBITED DEFAULT LIST (STROGO ZABRANJENO)
+## 3. PROHIBITED DEFAULT LIST
 To prevent generating generic, average internet outputs, you are strictly BANNED from using:
 - **BANNED Typefaces:** `Inter`, `Roboto`, `Poppins`, `Open Sans` (default AI font output). Use system serifs (e.g., `Didot`, `Times New Roman`, `Bodoni`) for headings and strict monospaces (e.g., `JetBrains Mono`, `Courier New`) for UI labels.
 - **BANNED Hero Layout:** Centered hero headline with a subtitle paragraph and two adjacent pill buttons.
@@ -44,7 +44,7 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 
 ---
 
-## 4. LAYOUT DECISION TREE (ODLUKE ZA LAYOUT)
+## 4. LAYOUT DECISION TREE
 
 ### If building a Hero Section:
 - **DO NOT** center-align elements.
@@ -79,27 +79,27 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 
 ---
 
-## 5. BRUTALIST TOKEN SKELETON (DIZAJN TOKENI)
+## 5. BRUTALIST TOKEN SKELETON
 
 Use this architectural skeleton to organize the typography and color tokens. You MUST NOT use default values without consulting the user. Proactively prompt the user to define these in coordination with the client.
 
 ```css
 :root {
-  /* Tipografija — DEFINIŠI U SARADNJI SA KLIJENTOM / KORISNIKOM */
+  /* Typography — DEFINE IN COORDINATION WITH THE CLIENT / USER */
   --font-display: <client-display-serif-font>, Georgia, serif;
   --font-mono:    <client-monospace-font>, monospace;
   
-  /* Boje (Maksimalno 4) — DEFINIŠI U SARADNJI SA KLIJENTOM / KORISNIKOM */
-  --color-bg:     <primary-bg-color>;      /* dominantna pozadina */
-  --color-text:   <primary-text-color>;    /* čitljiv tekst */
-  --color-muted:  <muted-label-color>;     /* sekundarni tekst, labele */
-  --color-accent: <brand-accent-color>;    /* jedina akcentna boja (retko se koristi) */
+  /* Colors (Max 4) — DEFINE IN COORDINATION WITH THE CLIENT / USER */
+  --color-bg:     <primary-bg-color>;      /* dominant background (night) */
+  --color-text:   <primary-text-color>;    /* highly legible text (bone) */
+  --color-muted:  <muted-label-color>;     /* secondary text, labels (concrete) */
+  --color-accent: <brand-accent-color>;    /* single accent color (used rarely) */
   
-  /* Linije i Konstrukcije */
+  /* Lines & Outlines */
   --line:         1px;
   --line-heavy:   2px;
   
-  /* Spacing skala (fluidne clamp vrednosti) */
+  /* Spacing scale (fluid clamp values) */
   --space-xs:  clamp(0.5rem, 1vw, 0.75rem);
   --space-sm:  clamp(0.75rem, 2vw, 1rem);
   --space-md:  clamp(1rem, 3vw, 1.5rem);
@@ -109,30 +109,30 @@ Use this architectural skeleton to organize the typography and color tokens. You
 ```
 
 > [!IMPORTANT]
-> **ESTETIKA I IDENTITET SE NE PREUZIMAJU AUTOMATSKI IZ OVOG ŠABLONA.**
-> Kao agent, ne smeš pretpostavljati boje i fontove klijenta. Ako klijent nema definisan identitet, tvoja je dužnost da predložiš vizuelni pravac (npr. industrijski tamni mod ili oštri tehnički kontrast) i zatražiš eksplicitan pristanak pre nego što popuniš varijable konkretnim vrednostima.
+> **ESTHETICS AND IDENTITY ARE NOT AUTOMATICALLY INHERITED FROM THIS SKELETON.**
+> As an agent, you MUST NOT assume the client's colors and fonts. If the client has no defined brand identity, it is your duty to propose a visual direction (e.g., dark industrial mode or sharp technical contrast) and request explicit approval before populating variables with concrete hex values.
 
 ---
 
-## 6. CODE RECIPES (KODNI RECEPTI)
+## 6. CODE RECIPES
 
 Use these copy-pasteable CSS/HTML/JS values for common layout problems:
 
-### Fluid Typography (Fluidna tipografija)
+### Fluid Typography
 ```css
 /* Fluid clamp scaling, preventing fixed px or overflow */
 font-size: clamp(2rem, 8vw, 4.5rem);
 line-height: 1.05;
 ```
 
-### Safe Area for Notch Devices (Notch podrška)
+### Safe Area for Notch Devices
 ```css
 /* Add safe area inset offsets to bottom/top positioning */
 padding-bottom: calc(24px + env(safe-area-inset-bottom));
 padding-top: calc(8px + env(safe-area-inset-top));
 ```
 
-### iOS Zoom Prevention on Inputs (Sprečavanje iOS auto-zooma)
+### iOS Zoom Prevention on Inputs
 ```css
 /* iOS zooms viewport automatically on focus if font-size < 16px */
 input, select, textarea {
@@ -140,13 +140,13 @@ input, select, textarea {
 }
 ```
 
-### 100vh Fix for Mobile Browsers (Rešenje za 100vh skokove)
+### 100vh Fix for Mobile Browsers
 ```css
 /* Prevents layouts jumping when address bar hides/shows */
 min-height: 100dvh;
 ```
 
-### Touch Feedback (Haptički odziv)
+### Touch Feedback
 ```css
 /* Deactivate Webkit tap highlight color */
 a, button, input, select, textarea, [role="button"] {
@@ -161,7 +161,7 @@ a:active, button:active, .submit:active, [role="button"]:active {
 }
 ```
 
-### JavaScript: Hamburger Menu - Brutalist Drawer (Mobilni Meni)
+### JavaScript: Hamburger Menu - Brutalist Drawer
 ```javascript
 const nav = document.querySelector('[data-nav]');
 const toggle = document.querySelector('[data-nav-toggle]');
@@ -244,7 +244,7 @@ const setHeroCut = (value) => {
 
 ---
 
-## 7. !important PROTOCOL (KADA SE KORISTI)
+## 7. !important PROTOCOL
 - **NEVER** use `!important` as a shortcut for specificity problems in your layout code. Solve the issue using proper CSS selector specificity.
 - **USE ONLY** for browser normalizations (like iOS zoom fix or disabling default tap highlight).
 - **USE ONLY** to override styling from third-party libraries (e.g. Google Maps default styles, libraries).
@@ -252,7 +252,7 @@ const setHeroCut = (value) => {
 
 ---
 
-## 8. COMPARATIVE CODE EXAMPLES (PRIMERI OUTPUTA)
+## 8. COMPARATIVE CODE EXAMPLES
 
 ### Example 1: Service List Row on Mobile
 
@@ -365,7 +365,7 @@ const setHeroCut = (value) => {
 
 ---
 
-## 9. PRE-FLIGHT OUTPUT CHECKLIST (IZLAZNA ČEKLISTA)
+## 9. PRE-FLIGHT OUTPUT CHECKLIST
 Before sending the final output, verify:
 - [ ] **Viewport Check:** Did you test on `1440px` to guarantee that the desktop layout remains 100% identical?
 - [ ] **Mobile Isolation:** Are all mobile layout additions encapsulated inside `@media (max-width: 768px)` or `@media (max-width: 480px)`?
@@ -376,13 +376,13 @@ Before sending the final output, verify:
 - [ ] **Touch Target Size:** Are all interactive touch elements at least `44x44px` in clickable size?
 - [ ] **Overscroll Containment:** Is `overscroll-behavior: contain` attached to fixed drawers or modal popups?
 
-## 10. BRUTALIST IDENTITY CHECK (PROVERA ESTETIKE)
+## 10. BRUTALIST IDENTITY CHECK
 Verify that the output strictly adheres to the brutalist aesthetic:
-- [ ] Postoji li ijedan element sa border-radius > 0? → Ukloni ili zaokruži na 0.
-- [ ] Koristi li se ijedan od zabranjenih fontova (Inter, Roboto, Poppins, Open Sans)? → Zameni.
-- [ ] Ima li sekcija koja ponavlja layout prethodne? → Razbij je drugim layout modelom (npr. tabela umesto kolona).
-- [ ] Ima li centrirani hero? → Restrukturiraj u asimetrični raspored.
-- [ ] Ima li card grida sa 3 kolone na mobilnom? → Konvertuj u vertikalno skiciranu listu.
-- [ ] Ima li mekih senki (soft box-shadow) na ijednom elementu? → Ukloni ili zameni oštrim crnim senkama (`box-shadow: 4px 4px 0px 0px var(--color-bg)`).
-- [ ] Jesu li sva dugmad oštrih ivica (border-radius: 0)?
-- [ ] Postoji li barem jedan elemenat koji "krši" grid pravila? (namerna tenzija, npr. asimetrični prelaz ili negativna margina koja gura element u stranu).
+- [ ] Does any element have border-radius > 0? → Remove or set to 0.
+- [ ] Are any of the banned fonts used (Inter, Roboto, Poppins, Open Sans)? → Replace them.
+- [ ] Does any section repeat the layout of the previous one? → Break it with a different layout pattern (e.g. table instead of columns).
+- [ ] Is there a centered hero section? → Restructure into an asymmetrical grid.
+- [ ] Is there a 3-column card grid on mobile? → Convert it into a vertically stacked indexed list.
+- [ ] Are there soft box-shadows on any element? → Remove or replace with sharp, hard shadows (e.g., `box-shadow: 4px 4px 0px 0px var(--color-bg)`).
+- [ ] Are all all buttons sharp-edged (border-radius: 0)?
+- [ ] Is there at least one element that intentionally breaks grid rules (engineered tension, e.g., asymmetric overlaps or negative margins)?
