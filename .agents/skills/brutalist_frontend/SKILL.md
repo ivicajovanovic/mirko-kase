@@ -1,59 +1,195 @@
 ---
 name: brutalist_frontend
-description: Guide and instructions for building high-performance, controlled-tension brutalist frontend interfaces with optimal UX and modern accessibility.
+description: Rules, implementation templates, and instructions for building high-performance, controlled-tension brutalist web interfaces. Trigger this skill when modifying, styling, or creating layout grids, mobile menu drawers, custom haptic buttons, or handling image render flicker.
 ---
 
-# Brutalist & Controlled-Tension Frontend Design Guide
+# Brutalist & Controlled-Tension Frontend Design Specification
 
-This guide describes how to design and build modern, high-performance, and visually distinctive "Brutalist" or "Controlled-Tension" frontend interfaces. It balances raw, industrial aesthetic choices with strict standards for performance, responsiveness, and accessibility (A11y).
-
----
-
-## 1. Core Visual Principles
-
-1. **Controlled Tension (Organized Chaos):**
-   - The design should feel raw, bold, and edge-like, but must remain mathematically precise, stable, and highly legible.
-   - Use sharp geometric borders, solid grids, and high contrast instead of soft borders, dropshadows, or rounded corners (`border-radius: 0 !important`).
-2. **High-Contrast Color Palettes:**
-   - Use highly contrastive, dark-mode friendly schemes (e.g., pure black/dark grey `--night` + off-white/cream `--bone` + warning/accent yellow `--rust`).
-   - Keep selection text and active items clear with high contrast ratios (WCAG AAA standard of at least 7:1).
-3. **Monospace & Serif Contrast:**
-   - Pair large serif typography for display headings with strict, small monospace fonts for labels, numbers, steps, and indicators to create a "technical blueprint" or "printed catalog" feel.
+This document provides strict engineering guidelines and implementation blueprints for building responsive, high-performance, and visually distinctive "Brutalist" or "Controlled-Tension" frontend layouts.
 
 ---
 
-## 2. Grid & Fluid Layout Rules
+## 1. Core Directives
 
-- **Viewport Containment:** Keep `html` and `body` set to `overflow-x: hidden` and `max-width: 100%` on mobile viewports to completely block horizontal scroll breakages.
-- **Section Spacing:** For mobile viewports, enforce a generous section padding (e.g., `48px 20px` or `padding-inline: var(--pad)`) to maintain design breathing room.
-- **Single-Column Stacking:** At small viewports (e.g., `< 480px`), stack complex multi-column grids or side-by-side ledger rows into simple single columns to prevent text clipping and squeezed layouts.
+### Visual Hierarchy
+- **NEVER** use soft shadows, gradients (unless explicitly requested), or rounded corners. Enforce `border-radius: 0 !important` globally.
+- **ALWAYS** contrast raw serif typography (headings) with strict monospace typography (UI labels, numbers, metadata).
+- **ALWAYS** design with sharp geometric lines (`var(--line) solid var(--color)`).
 
----
+### Viewport & Layout Integrity
+- **ALWAYS** include `overflow-x: hidden` and `max-width: 100%` on `html` and `body` in mobile media queries to prevent horizontal overflow scrolling.
+- **ALWAYS** stack grid elements into a single column on viewports `<= 480px` (e.g., set `.ledger-row { grid-template-columns: 1fr; }` and make grid children span `1 / -1`).
 
-## 3. Typography & Accessibility (A11y)
-
-- **Minimum Body Copy:** Keep readable paragraph and service descriptions at a minimum of `16px` font size on mobile devices, with a `line-height` of at least `1.5` to `1.55`.
-- **Reduced Letter-Spacing for Paragraphs:** While micro-labels can have wide spacing, reading copies and paragraphs should use a tight `letter-spacing` (e.g. `0.02em` or `normal`) to reduce reading fatigue on small screens.
-- **Word-Breaking:** Always define `word-break: break-word` and `overflow-wrap: break-word` on headings for mobile viewports to prevent long words from overflowing screen margins.
-- **Fluid Header Scaling:** Avoid raw `vw` typography. Use `clamp()` rules to constrain title sizes safely across different device viewports (e.g., `font-size: clamp(2rem, 8vw, 4.5rem)`).
-
----
-
-## 4. Mobile Menu Interactivity (Accessible Drawer)
-
-For sliding navigation drawers on mobile:
-1. **Focus Trap:** When the drawer is open, keep focus trapped inside the drawer loop using JS. Prevent focus from escaping to the background document.
-2. **Overlay Click-Outside:** Implement a semi-transparent, blurred backdrop overlay (`.mobile-menu-overlay`) that slides or fades in and closes the drawer when clicked.
-3. **Keyboard Escape:** Attach a global key listener that closes the drawer immediately when the `Escape` key is pressed.
-4. **Overscroll Containment:** Set `overscroll-behavior: contain` on the drawer to block background page scrolling while navigating the menu.
+### Typography Rules
+- **NEVER** use raw `vw` units for font sizing. **ALWAYS** wrap them in a `clamp()` function to set minimum and maximum constraints (e.g., `font-size: clamp(2rem, 10vw, 3.5rem)`).
+- **ALWAYS** apply `word-break: break-word` and `overflow-wrap: break-word` on mobile headings to prevent long words from clipping.
+- **ALWAYS** maintain a minimum `16px` font size and `1.5` line-height for body reading copy on mobile.
+- **ALWAYS** reduce `letter-spacing` to `0.02em` or `normal` on paragraphs of body copy for optimal reading, even if wide letter-spacing is used for UI labels.
 
 ---
 
-## 5. Touch UX & Safe Areas
+## 2. Recipe: Anti-Flicker Hero Image Reveal
 
-- **Touch Target Size:** Ensure all clickable elements (logos, menu toggles, back-to-top buttons, inline contact links) have a minimum touch target area of `44x44px`.
-- **iOS Zoom Prevention:** Form inputs, select, and textarea fields must be at least `16px` font size on mobile to stop iOS Safari from auto-zooming and displacing the page layout on focus.
-- **Haptic Press Transition:** Set `-webkit-tap-highlight-color: transparent` to hide default OS tap flashes. Replace it with an active scale transition:
+To prevent the visual "flash" (FOUC) of an animated clip-path layout on page load before JavaScript executes, you MUST implement the following pattern:
+
+### 1. HTML Layout Setup
+Insert a synchronous detection script inside the HTML `<head>` tag:
+```html
+<head>
+  <!-- Place this script inline in the head before any body elements are painted -->
+  <script is:inline>
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('js');
+    }
+  </script>
+</head>
+```
+
+### 2. Base & State CSS Styles
+Define the layout variables to start in a hidden state only when Javascript is loaded.
+```css
+/* Fallback default for No-JS users (fully visible/partially visible layout) */
+.hero {
+  --hero-cut: 44%;
+}
+.hero-image {
+  clip-path: inset(0 0 0 var(--hero-cut));
+}
+
+/* Instant-hide state during first paint when JS is enabled */
+html.js .hero {
+  --hero-cut: 100%;
+}
+```
+
+### 3. JavaScript Animation Execution
+Do **NOT** write inline `style.clipPath` overrides during JS initialization. Instead, let the class animations run, and modify the CSS custom variable directly:
+```javascript
+// GOOD: Updates the layout variable. CSS transitions will handle clip-path changes.
+const setHeroCut = (value) => {
+  const pct = `${value}%`;
+  heroElement.style.setProperty('--hero-cut', pct);
+};
+```
+
+---
+
+## 3. Recipe: Accessible Navigation Drawer (Mobile Menu)
+
+When implementing the hamburger menu sliding drawer:
+
+### 1. HTML Structure
+```html
+<!-- Navigation drawer -->
+<nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
+  <a href="#section-1">Link 1</a>
+  <a href="#section-2">Link 2</a>
+</nav>
+
+<!-- Backdrop overlay -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay" aria-hidden="true"></div>
+```
+
+### 2. Interaction CSS Styles
+```css
+/* Drawer container positioning */
+.mobile-menu {
+  position: fixed;
+  z-index: 50;
+  top: 0; bottom: 0; right: 0; left: auto;
+  width: min(80vw, 360px);
+  transform: translateX(100%);
+  transition: transform 0.18s steps(3, end); /* Brutalist stepped animation */
+  overscroll-behavior: contain; /* Prevents scroll chaining to body */
+}
+.mobile-menu.open {
+  transform: translateX(0);
+}
+
+/* Semi-transparent backdrop overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(17, 17, 15, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.mobile-menu-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+```
+
+### 3. JavaScript Interactivity
+You MUST manage focus, click-outside, and keyboard Escape events:
+```javascript
+const toggle = document.querySelector('.menu-toggle');
+const menu = document.querySelector('.mobile-menu');
+const overlay = document.querySelector('#mobile-menu-overlay');
+
+if (toggle && menu) {
+  const menuLinks = menu.querySelectorAll('a');
+  const focusable = [toggle, ...menuLinks];
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  const focusTrap = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  };
+
+  const openMenu = () => {
+    menu.classList.add('open');
+    overlay.classList.add('open');
+    document.body.classList.add('menu-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.addEventListener('keydown', focusTrap);
+    menuLinks[0]?.focus();
+  };
+
+  const closeMenu = () => {
+    menu.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.classList.remove('menu-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('keydown', focusTrap);
+    toggle.focus();
+  };
+
+  toggle.addEventListener('click', () => {
+    menu.classList.contains('open') ? closeMenu() : openMenu();
+  });
+
+  overlay.addEventListener('click', closeMenu);
+  menuLinks.forEach(link => link.addEventListener('click', closeMenu));
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.classList.contains('open')) {
+      closeMenu();
+    }
+  });
+}
+```
+
+---
+
+## 4. Recipe: Touch Targets & Haptic Feedback
+
+On touch viewports (`max-width: 768px`):
+
+- **Minimum Interactive Size:** Set clickable area (width and height) to at least `44x44px`. Add padding rather than increasing margin if space is tight.
+- **Spacing:** Enforce a minimum gap of `8px` between adjacent touch elements.
+- **Haptic Press Transition:** Set `-webkit-tap-highlight-color: transparent` and add active scaling:
   ```css
   a:active, button:active, [role="button"]:active {
     transform: scale(0.98) !important;
@@ -61,25 +197,21 @@ For sliding navigation drawers on mobile:
     transition: transform 0.1s ease, opacity 0.1s ease !important;
   }
   ```
-- **Touch Hover Override:** Wrap desktop-only hover effects in `@media (hover: none)` to override and disable hover styles on touch screens, avoiding stuck hover colors after taps.
-- **Safe Area Insets (Notch Devices):** Offset fixed or sticky elements (like header bars, sliding drawers, back-to-top buttons) using CSS `env(safe-area-inset-...)` rules.
+- **Stuck Hover Prevention:** Wrap hover rules or disable them on touch devices to avoid stuck states after tapping:
+  ```css
+  @media (max-width: 768px) and (hover: none) {
+    .clickable:hover {
+      background: transparent !important;
+      color: inherit !important;
+    }
+  }
+  ```
 
 ---
 
-## 6. Performance & Anti-Flicker Techniques
+## 5. Common Pitfalls & Anti-Patterns to Avoid
 
-- **Synchronous JS Detection:** Place a light, synchronous `<script is:inline>` block in the HTML `<head>` to immediately flag JavaScript presence before the body is rendered:
-  ```html
-  <script is:inline>
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.documentElement.classList.add('js');
-    }
-  </script>
-  ```
-- **CSS Initial Hide:** Match the `.js` class in stylesheets to force reveal-animated elements (like the hero images) to render as fully clipped or hidden on first paint:
-  ```css
-  html.js .hero {
-    --hero-cut: 100%; /* Keeps image hidden until JS animates the clip-path */
-  }
-  ```
-  This prevents a visual flash of unstyled/unclipped image content before the main JS initializes.
+- **NEVER** set inline style attributes (like `element.style.clipPath`) that clash with stylesheet classes. This creates specificity overrides that break standard animation flow. Always animate using class toggles or CSS custom variables (`setProperty('--variable', value)`).
+- **NEVER** use font sizes below `16px` on input fields. If you do, iOS Safari will automatically zoom the viewport on focus, breaking the page layout.
+- **NEVER** design a fixed/sticky header without adding `scroll-margin-top` on anchor section elements. If omitted, the header will overlap the section titles when users navigate through anchor links.
+- **NEVER** forget to include notch safe areas (`env(safe-area-inset-top)` / `env(safe-area-inset-bottom)`) on fixed header bars, sticky bottom buttons, or side-drawers. Without these, content will be clipped behind the screen cutouts on modern phones.
