@@ -19,18 +19,26 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('js');
+      }
+    </script>
   </head>
   <body>
     <a class="skip" href="#main">Preskoči na sadržaj</a>
     
     <header class="site-header">
-      <a class="brand" href="#top" aria-label="VM MOBILE home"><b>VM MOBILE</b>&nbsp;/ FISKALNE KASE</a>
+      <a class="brand" href="#top" aria-label="VM MOBILE home">
+        <img src="/logo.svg" alt="VM MOBILE Logo" class="brand-logo" />
+      </a>
       <nav class="nav" aria-label="Primary navigation">
         <a href="#material">01 Usluge</a><a href="#work">02 Servis</a><a href="#office">03 Kancelarija</a><a href="#commission">04 Kontakt</a>
       </nav>
       <div class="place">
-        <a href="tel:+381637495456" style="display: inline-flex; align-items: center; gap: 6px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone" style="display: inline-block;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <a href="tel:+381637495456" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone" style="display: inline-block;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           063 7 495 456
         </a>
       </div>
@@ -54,7 +62,7 @@ const {
     const init = () => {
       // Strike targets animation
       const strikeTargets = document.querySelectorAll([
-        '.brand', '.nav a', '.hero-title span', '.hero-intro', '.specimen',
+        '.brand', '.nav a', '.hero-title span', '.hero-intro',
         '.eyebrow', '.manifest-title', '.works-title', '.office-title', '.project-title', '.commission-title'
       ].join(','));
       
@@ -159,9 +167,10 @@ const {
 
       // Images reveal without JS support
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const revealFigures = [...document.querySelectorAll('figure:not(.hero-image)')];
+      const revealFigures = [...document.querySelectorAll('figure')];
       revealFigures.forEach(figure => figure.classList.add('reveal'));
       document.body.classList.add('motion-ready');
+
       if (reducedMotion) {
         revealFigures.forEach(figure => figure.classList.add('is-revealed'));
       } else {
@@ -179,16 +188,51 @@ const {
       const hero = document.querySelector('.hero');
       const heroGrid = document.querySelector('.hero-grid');
       const heroDivider = document.querySelector('.hero-divider');
-      if (hero && heroGrid && heroDivider) {
+      const heroImage = document.querySelector('.hero-image');
+
+      if (hero && heroGrid && heroDivider && heroImage) {
         let heroCut = window.innerWidth <= 800 ? 32 : 44;
         let draggingDivider = false;
 
+        // Initialize slider cut at 0% so image is fully revealed initially
         const setHeroCut = (value: number) => {
           heroCut = Math.max(0, Math.min(100, value));
-          (hero as HTMLElement).style.setProperty('--hero-cut', `${heroCut}%`);
+          const pct = `${heroCut}%`;
+          (hero as HTMLElement).style.setProperty('--hero-cut', pct);
+          (heroDivider as HTMLElement).style.left = pct;
           heroDivider.setAttribute('aria-valuenow', String(Math.round(heroCut)));
           heroDivider.setAttribute('aria-valuetext', `${Math.round(100 - heroCut)} procenata slike vidljivo`);
         };
+
+        setHeroCut(0);
+
+        if (reducedMotion) {
+          setHeroCut(window.innerWidth <= 800 ? 32 : 44);
+        } else {
+          // Wait for first image reveal animation (180ms delay + 1350ms duration)
+          setTimeout(() => {
+            // Remove reveal classes so clip-path falls back to inline value (which is 0%)
+            heroImage.classList.remove('reveal');
+            heroImage.classList.remove('is-revealed');
+
+            // Force reflow so the browser registers the state change without transitioning
+            (heroImage as HTMLElement).offsetHeight;
+
+            // Enable transitioning class
+            hero.classList.add('transitioning');
+
+            // Force reflow again to ensure transition styles are attached
+            (heroImage as HTMLElement).offsetHeight;
+
+            // Slide in black overlay/divider to default split point (using 1.2s transition)
+            setHeroCut(window.innerWidth <= 800 ? 32 : 44);
+
+            // Clean up transitioning class after transition completes (1200ms duration)
+            setTimeout(() => {
+              hero.classList.remove('transitioning');
+            }, 1300);
+          }, 1550);
+        }
 
         const setCutFromPointer = (event: PointerEvent) => {
           const bounds = heroGrid.getBoundingClientRect();
@@ -197,6 +241,7 @@ const {
 
         heroDivider.addEventListener('pointerdown', event => {
           draggingDivider = true;
+          hero.classList.remove('transitioning'); // Remove transition immediately on user interaction
           heroDivider.setPointerCapture(event.pointerId);
           setCutFromPointer(event);
         });

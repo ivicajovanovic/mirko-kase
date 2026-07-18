@@ -51,7 +51,7 @@ Ovaj dokument sadrži zvanične tekstove (copy) za sajt **VM MOBILE**, organizov
 ## 3. Sekcija: Usluge i Oprema (`src/components/Material.astro`)
 
 *   **Glavni naslov sekcije:**
-    `Brz odziv. Rešenje.`
+    `Održiva rešenja`
     *(Naglašava pouzdanost i brzinu – dva najvažnija faktora za vlasnike maloprodajnih objekata).*
 *   **Manifest (Opis vrednosti):**
     "Kase se programiraju, servisiraju i isporučuju spremne za rad.  
