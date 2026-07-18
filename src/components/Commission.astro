@@ -28,7 +28,7 @@
       <form class="form-grid" id="commission-form">
         <div class="field">
           <label for="name">Ime i prezime / Naziv firme *</label>
-          <input id="name" name="name" autocomplete="name" required />
+          <input id="name" name="name" type="text" autocomplete="name" required />
         </div>
         <div class="field">
           <label for="email">Email adresa *</label>
@@ -36,7 +36,7 @@
         </div>
         <div class="field">
           <label for="location">Lokacija (Mesto / Opština) *</label>
-          <input id="location" name="location" placeholder="NPR. PETROVAC, POŽAREVAC, KUČEVO..." required />
+          <input id="location" name="location" type="text" autocomplete="address-level2" placeholder="NPR. PETROVAC, POŽAREVAC, KUČEVO..." required />
         </div>
         <div class="field">
           <label for="type">Vrsta usluge *</label>
@@ -50,11 +50,11 @@
         </div>
         <div class="field">
           <label for="dimensions">Obim posla</label>
-          <input id="dimensions" name="dimensions" placeholder="NPR. BROJ ARTIKALA, KOLIČINA ROLNI" />
+          <input id="dimensions" name="dimensions" type="text" placeholder="NPR. BROJ ARTIKALA, KOLIČINA ROLNI" />
         </div>
         <div class="field">
           <label for="timeframe">Rok za realizaciju</label>
-          <input id="timeframe" name="timeframe" placeholder="NPR. HITNO, OVE NEDELJE, MESEC" />
+          <input id="timeframe" name="timeframe" type="text" placeholder="NPR. HITNO, OVE NEDELJE, MESEC" />
         </div>
         <div class="field full">
           <label for="brief">Opis zahteva *</label>
