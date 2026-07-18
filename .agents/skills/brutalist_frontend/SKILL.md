@@ -1,31 +1,158 @@
 ---
 name: brutalist_frontend
-description: Rules, decision trees, code recipes, and pre-flight validation checklists for building high-performance, controlled-tension brutalist web interfaces.
+description: Autonomous execution protocol, decision trees, code recipes, and bash verification scripts for building high-performance, controlled-tension brutalist web interfaces.
 ---
 
 # Brutalist & Controlled-Tension Frontend Design Protocol
 
-This document is a strict execution protocol for building responsive, high-performance, and visually distinctive "Brutalist" or "Controlled-Tension" frontend layouts.
+This document is a strict, autonomous execution protocol for building, modifying, and verifying responsive, high-performance, and visually distinctive "Brutalist" or "Controlled-Tension" frontend layouts.
+
+---
+
+## 0. BOOTSTRAP MODE (READ BEFORE PROCEEDING)
+
+### DETECT REPO STATE
+Before writing any code or analyzing the workspace, execute this check:
+```bash
+ls -la | grep -E "DESIGN_BRIEF|SITEMAP|COPY|ASSETS"
+```
+
+- **IF output is empty (no foundation files found):**
+  - DO NOT proceed to Section 1.
+  - ENTER FOUNDATION INTERVIEW MODE (see below).
+  - DO NOT write any code until all foundation files are created.
+- **IF all 4 files exist:**
+  - Read files in order: `DESIGN_BRIEF.md` → `SITEMAP.md` → `COPY.md` → `ASSETS.md`.
+  - Proceed to Section 1 (Pre-Flight Context Discovery).
+- **IF partial files exist:**
+  - Identify and list missing files in chat.
+  - Run interview prompts ONLY for missing files. Do not repeat interview questions for files that already exist.
+
+---
+
+### FOUNDATION INTERVIEW MODE
+Guide the user through 4 phases, one by one. Wait for user input after each phase. Ask NO MORE than 3 questions at a time.
+
+#### Phase 1: Project Identity
+Ask the user:
+1. Who is the client and what do they do? (Name, industry, one-sentence description)
+2. Who are the primary site users? (Customers, partners, general public)
+3. Which 3 words describe the visual tone the site MUST have? Which 3 words describe what the site DEFINITIVNO NE SME (definitely must not) be?
+
+*Action:* Extract findings, propose a 1-sentence design direction, ask for confirmation. Upon confirmation, write `/home/ivica1979/projekti/mirko-kase/DESIGN_BRIEF.md` (Identity Section).
+
+#### Phase 2: Visual Identity
+Ask the user:
+1. Are there pre-defined brand colors? If yes, list hex codes. If no, what reference site or image describes the target mood?
+2. Does a logo exist? If yes, what format?
+3. Font preferences: Do you have specific font files/names, or should I propose options?
+
+*Action:* Propose 2-3 options from the permitted typography list if choice is free. Do not write style code until colors and fonts are confirmed. Update `/home/ivica1979/projekti/mirko-kase/DESIGN_BRIEF.md` (Visual Tokens Section).
+
+#### Phase 3: Site Structure
+Ask the user:
+1. Which pages need to exist?
+2. What sections must exist on the homepage, and in what order?
+3. What is the most critical action (primary CTA) the user should take?
+
+*Action:* Write `/home/ivica1979/projekti/mirko-kase/SITEMAP.md` and display it to the user. Wait for confirmation.
+
+#### Phase 4: Copy & Assets
+Ask the user:
+1. Do you have copy written? (If yes, organize it in COPY.md. If no, request permission to write placeholder copy).
+2. What visual assets exist? (Logo path, photographs, icons)
+
+*Action:* Create `/home/ivica1979/projekti/mirko-kase/COPY.md` and `/home/ivica1979/projekti/mirko-kase/ASSETS.md`. Explicitly mark placeholders: `<!-- PLACEHOLDER: replace before launch -->`.
+
+#### Bootstrap Transition
+Once all 4 files are saved, present the summary of tokens, fonts, pages, and copy status. Ask the user for priority on what page to build first. Then transition to Section 1.
+
+#### Bootstrap Rules
+- NEVER ask more than 3 questions at once.
+- ALWAYS wait for confirmation before saving files or transitioning phases.
+- NEVER invent brand colors or fonts without explicit confirmation.
+- If user skips a question, mark as `TBD` in the file. Do not block progress.
 
 ---
 
 ## 1. PRE-FLIGHT CONTEXT DISCOVERY
-Before writing any code or making modifications, you MUST discover and document the following context:
-- [ ] **Framework & Styling Strategy:**
-  - *Vanilla HTML/CSS/Astro:* Put all variables in `:root` in the main `.css` file.
-  - *Tailwind CSS:* NEVER write custom `@media` queries manually. Use Tailwind's responsive prefixes (e.g. `sm:`, `md:`, `lg:`).
-  - *CSS Modules:* Each responsive style block goes inside the corresponding `.module.css` file, not in the global stylesheet.
-  - *If you cannot determine the framework:* STOP and ask the user. Do not make assumptions.
-- [ ] **Design System:** Does a variables or token file exist? Check and list the primary variables.
-- [ ] **Target Device Layout:** [ ] Desktop-First [ ] Mobile-First
-- [ ] **Animations Spec:** Do scroll animations, page transitions, or reveal states exist?
-- [ ] **Client Branding & Identity:** Has the client defined their custom brand color codes (background, text, muted, accent) and typography (display serif, monospace)?
-  - *If yes:* Retrieve the exact brand assets and plug them into the Token Skeleton below.
-  - *If no:* Propose a cohesive brutalist theme (e.g. dark industrial, high-contrast warning) to the user/client, get their explicit approval, and then write the custom styles. Do NOT assume colors or fonts.
+You MUST programmatically discover and document the codebase state. Execute the following sequence:
+
+### Framework & Styling Discovery
+1. **Framework Type:**
+   Check dependencies:
+   ```bash
+   cat package.json | grep -E "tailwind|vite|next|astro|svelte|react"
+   ```
+2. **Tailwind Check:**
+   Verify if Tailwind classes are used:
+   ```bash
+   grep -r "tailwind\|@apply\|className=" src/ --include="*.{js,jsx,ts,tsx,astro,html}" -l | head -n 10
+   ```
+3. **CSS Modules Check:**
+   Locate component module stylesheets:
+   ```bash
+   find src/ -name "*.module.css" -o -name "*.module.scss"
+   ```
+4. **Fallback:** If framework cannot be determined, default to **Vanilla CSS** and log this assumption in `/tmp/AGENT_LOG.md`.
+
+### Brand Color Discovery
+Extract existing hex color usage from the codebase:
+```bash
+grep -r "color\|background\|#[0-9a-fA-F]" src/ --include="*.css" -h 2>/dev/null | sort | uniq | head -n 30
+```
+Use these extracted values as the source of truth for the token skeleton. Do not invent new colors.
 
 ---
 
-## 2. STRICT ASSUMPTION LIMITS
+## 2. FILE DISCOVERY SEQUENCE
+To prevent duplicating classes and modifying incorrect stylesheets, locate target files:
+
+1. **Locate Design Tokens / Root Variables:**
+   ```bash
+   find . -name "*.css" | xargs grep -l ":root" 2>/dev/null
+   find . -name "tokens.*" -o -name "variables.*" -o -name "theme.*" 2>/dev/null
+   ```
+2. **Locate Existing Media Queries:**
+   ```bash
+   grep -rn "@media" src/ --include="*.css" --include="*.module.css"
+   ```
+3. **Locate Target Component Files:**
+   ```bash
+   find src/ -name "*.astro" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.html" | head -n 30
+   ```
+4. **Locate Mobile Breakpoint References:**
+   ```bash
+   grep -rn "max-width\|min-width\|768\|480\|375" src/ --include="*.css"
+   ```
+5. **Pre-flight Documentation:**
+   Write your discoveries to `/tmp/agent_preflight.md` before writing layout edits.
+
+---
+
+## 3. CHANGE ISOLATION PROTOCOL
+To protect the desktop viewport configuration and prevent layout regression, adhere to these rules:
+
+1. **Backup Source Files:**
+   Before making edits, backup the stylesheet:
+   ```bash
+   cp src/styles/global.css /tmp/global.css.bak
+   ```
+2. **Media Query Isolation:**
+   NEVER write or edit CSS properties outside `@media` queries unless:
+   - Defining a new global custom variable inside `:root`.
+   - Adding missing baseline resets (e.g. `box-sizing: border-box`).
+   - Documenting the addition: `/* AGENT: added baseline reset, no layout change */`.
+3. **Verification via Diff:**
+   After every file change, run a diff verification check:
+   ```bash
+   diff /tmp/global.css.bak src/styles/global.css || true
+   ```
+   If the diff reveals visual changes outside `@media` blocks that are not documented exceptions, REVERT and re-approach.
+
+---
+
+## 4. STRICT ASSUMPTION LIMITS
 - **NEVER** assume the user wants animations (verify or await specific specs).
 - **NEVER** assume fonts are pre-loaded (always include `@font-face` or Google Fonts `@import` inside CSS if not present).
 - **NEVER** assume a global reset exists (always check for `box-sizing: border-box` and margins resets).
@@ -34,7 +161,7 @@ Before writing any code or making modifications, you MUST discover and document 
 
 ---
 
-## 3. PROHIBITED DEFAULT LIST
+## 5. PROHIBITED DEFAULT LIST
 To prevent generating generic, average internet outputs, you are strictly BANNED from using:
 - **BANNED Typefaces:** `Inter`, `Roboto`, `Poppins`, `Open Sans` (default AI font output). Use system serifs (e.g., `Didot`, `Times New Roman`, `Bodoni`) for headings and strict monospaces (e.g., `JetBrains Mono`, `Courier New`) for UI labels.
 - **BANNED Hero Layout:** Centered hero headline with a subtitle paragraph and two adjacent pill buttons.
@@ -44,7 +171,7 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 
 ---
 
-## 4. LAYOUT DECISION TREE
+## 6. LAYOUT DECISION TREE WITH DETERMINISTIC FALLBACKS
 
 ### If building a Hero Section:
 - **DO NOT** center-align elements.
@@ -61,9 +188,23 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 - **ALWAYS** make the submit button full-width on mobile.
 
 ### If building a Navigation / Header:
-- **NEVER:** Use a hamburger menu that toggles `display: none` / `display: block` inline.
-- **ALWAYS:** Use CSS `transform: translateX()` for the sliding drawer transition.
-- **ALWAYS:** Ensure focus trapping, `aria-expanded` toggle state, background scroll locking, and Escape key listeners are attached.
+- **DETECT:**
+  ```bash
+  grep -n "nav\|header\|hamburger\|menu" src/ -r --include="*.css" --include="*.astro"
+  ```
+- **IF existing nav is found:**
+  - Read current implementation.
+  - Identify transition mechanism (e.g., toggled display vs transform).
+  - IF `display: none / block` is used → Replace with transform drawer animation (see Recipe below).
+  - IF `transform` is already implemented → Add only missing focus trap, scroll lock, and Escape listeners.
+  - DO NOT restructure working markup layout; add functionality on top.
+- **IF no nav is found:**
+  - Scaffold drawer layout from the Navigation Recipe.
+  - Create `src/components/Nav.astro` (or relevant framework layout file).
+  - Inject CSS styles into the main detected stylesheet.
+- **IF nav is a third-party module:**
+  - Do NOT modify the core library styles.
+  - Apply custom overriding styles externally. Document this in `/tmp/AGENT_LOG.md`.
 
 ### If building a Testimonials / Social Proof Section:
 - **NEVER:** Use carousels with autoplay, infinite loops, or tiny dots.
@@ -79,7 +220,7 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 
 ---
 
-## 5. BRUTALIST TOKEN SKELETON
+## 7. BRUTALIST TOKEN SKELETON
 
 Use this architectural skeleton to organize the typography and color tokens. You MUST NOT use default values without consulting the user. Proactively prompt the user to define these in coordination with the client.
 
@@ -114,54 +255,66 @@ Use this architectural skeleton to organize the typography and color tokens. You
 
 ---
 
-## 6. CODE RECIPES
-
-Use these copy-pasteable CSS/HTML/JS values for common layout problems:
+## 8. CODE RECIPES & PLACEMENT PROCEDURES
 
 ### Fluid Typography
-```css
-/* Fluid clamp scaling, preventing fixed px or overflow */
-font-size: clamp(2rem, 8vw, 4.5rem);
-line-height: 1.05;
-```
+- **Usage:** Set heading sizes.
+- **Code:**
+  ```css
+  font-size: clamp(2rem, 8vw, 4.5rem);
+  line-height: 1.05;
+  ```
 
 ### Safe Area for Notch Devices
-```css
-/* Add safe area inset offsets to bottom/top positioning */
-padding-bottom: calc(24px + env(safe-area-inset-bottom));
-padding-top: calc(8px + env(safe-area-inset-top));
-```
+- **Usage:** Fixed headers, floating back-to-top buttons, sticky menus.
+- **Code:**
+  ```css
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  padding-top: calc(8px + env(safe-area-inset-top));
+  ```
 
 ### iOS Zoom Prevention on Inputs
-```css
-/* iOS zooms viewport automatically on focus if font-size < 16px */
-input, select, textarea {
-  font-size: 16px !important; /* Normalization: !important is allowed here */
-}
-```
+- **Usage:** Input normalizations.
+- **Code:**
+  ```css
+  input, select, textarea {
+    font-size: 16px !important; /* Normalization: !important is allowed here */
+  }
+  ```
 
 ### 100vh Fix for Mobile Browsers
-```css
-/* Prevents layouts jumping when address bar hides/shows */
-min-height: 100dvh;
-```
+- **Usage:** Full viewport heights.
+- **Code:**
+  ```css
+  min-height: 100dvh;
+  ```
 
 ### Touch Feedback
-```css
-/* Deactivate Webkit tap highlight color */
-a, button, input, select, textarea, [role="button"] {
-  -webkit-tap-highlight-color: transparent !important; /* Normalization: !important is allowed here */
-}
+- **Usage:** Mobile interactive links/buttons.
+- **Code:**
+  ```css
+  a, button, input, select, textarea, [role="button"] {
+    -webkit-tap-highlight-color: transparent !important; /* Normalization: !important is allowed here */
+  }
+  a:active, button:active, .submit:active, [role="button"]:active {
+    transform: scale(0.98);
+    opacity: 0.85;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  ```
 
-/* Active touch press feedback transition */
-a:active, button:active, .submit:active, [role="button"]:active {
-  transform: scale(0.98);
-  opacity: 0.85;
-  transition: transform 0.1s ease, opacity 0.1s ease;
-}
-```
+### Hamburger Menu Script (Mobile Menu Interactivity)
 
-### JavaScript: Hamburger Menu - Brutalist Drawer
+#### Placement Decision:
+- **IF Astro:** Save to `src/scripts/nav.ts` and import via `<script>` inside `Layout.astro` or `Nav.astro`.
+- **IF Next.js / React:** Implement as React state and load with `useEffect()` inside the navigation component.
+- **IF Vanilla HTML:** Place script tag immediately before the closing `</body>` tag of `index.html`.
+- **Verification:** Confirm tags match markup:
+  ```bash
+  grep -r "data-nav\|data-nav-toggle" src/
+  ```
+
+#### Implementation Code:
 ```javascript
 const nav = document.querySelector('[data-nav]');
 const toggle = document.querySelector('[data-nav-toggle]');
@@ -194,7 +347,6 @@ toggle.addEventListener('click', () => {
   }
 });
 
-// Escape key closure
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
     toggle.click();
@@ -202,7 +354,12 @@ document.addEventListener('keydown', (e) => {
 });
 ```
 
-### JavaScript: Scroll Reveal without Libraries (Intersection Observer)
+### Intersection Observer Script (Scroll Reveal without Libraries)
+
+#### Placement Decision:
+- Save to main scripts or index bundle, target element selector attributes matching `[data-reveal]`.
+
+#### Implementation Code:
 ```javascript
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
@@ -218,7 +375,7 @@ document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
 
 ### Anti-Flicker Hero Image Reveal Setup
 
-**Step 1:** Synchronous head detection:
+**Step 1:** Synchronous head detection (Layout.astro):
 ```html
 <head>
   <script is:inline>
@@ -228,7 +385,7 @@ document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
   </script>
 </head>
 ```
-**Step 2:** CSS variable override:
+**Step 2:** CSS variable override (global.css):
 ```css
 .hero { --hero-cut: 44%; }
 .hero-image { clip-path: inset(0 0 0 var(--hero-cut)); }
@@ -244,7 +401,7 @@ const setHeroCut = (value) => {
 
 ---
 
-## 7. !important PROTOCOL
+## 9. !important PROTOCOL
 - **NEVER** use `!important` as a shortcut for specificity problems in your layout code. Solve the issue using proper CSS selector specificity.
 - **USE ONLY** for browser normalizations (like iOS zoom fix or disabling default tap highlight).
 - **USE ONLY** to override styling from third-party libraries (e.g. Google Maps default styles, libraries).
@@ -252,13 +409,12 @@ const setHeroCut = (value) => {
 
 ---
 
-## 8. COMPARATIVE CODE EXAMPLES
+## 10. COMPARATIVE CODE EXAMPLES
 
 ### Example 1: Service List Row on Mobile
 
 #### ❌ BAD (Generic, squeezed layout):
 ```css
-/* Stylesheet */
 .service-item {
   display: flex;
   justify-content: space-between;
@@ -276,7 +432,6 @@ const setHeroCut = (value) => {
 
 #### ✅ GOOD (Controlled brutalist stack with minimum accessibility):
 ```css
-/* Stylesheet */
 @media (max-width: 768px) {
   .service-item {
     display: grid;
@@ -308,7 +463,6 @@ const setHeroCut = (value) => {
 
 #### ❌ BAD (Three columns squished or horizontal overflow):
 ```css
-/* Stylesheet */
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Horizontally squishes on mobile */
@@ -317,7 +471,6 @@ const setHeroCut = (value) => {
 
 #### ✅ GOOD (Stacked vertical layout with clean spacing):
 ```css
-/* Stylesheet */
 @media (max-width: 768px) {
   .pricing-grid {
     grid-template-columns: 1fr; /* Stacks to single column */
@@ -337,7 +490,6 @@ const setHeroCut = (value) => {
 
 #### ❌ BAD (Abrupt display toggle):
 ```css
-/* Stylesheet */
 .drawer {
   display: none;
 }
@@ -348,7 +500,6 @@ const setHeroCut = (value) => {
 
 #### ✅ GOOD (Stepped transform translation):
 ```css
-/* Stylesheet */
 @media (max-width: 768px) {
   .drawer {
     position: fixed;
@@ -365,24 +516,77 @@ const setHeroCut = (value) => {
 
 ---
 
-## 9. PRE-FLIGHT OUTPUT CHECKLIST
-Before sending the final output, verify:
-- [ ] **Viewport Check:** Did you test on `1440px` to guarantee that the desktop layout remains 100% identical?
-- [ ] **Mobile Isolation:** Are all mobile layout additions encapsulated inside `@media (max-width: 768px)` or `@media (max-width: 480px)`?
-- [ ] **Typographic Clamp:** Do all scalable text variables use `clamp()` instead of raw `vw` units?
-- [ ] **Input Zoom:** Are all form input font-sizes `>= 16px` to prevent iOS viewport auto-zooms?
-- [ ] **Accessibility Contrast:** Do all text elements meet at least WCAG AA (4.5:1) color contrast ratios?
-- [ ] **Scroll Padding:** Do all section wrappers with anchor links contain a `scroll-margin-top` to prevent header overlapping?
-- [ ] **Touch Target Size:** Are all interactive touch elements at least `44x44px` in clickable size?
-- [ ] **Overscroll Containment:** Is `overscroll-behavior: contain` attached to fixed drawers or modal popups?
+## 11. AUTOMATED VERIFICATION SEQUENCE
+Before finishing execution, you MUST run these command checks to programmatically audit your changes:
 
-## 10. BRUTALIST IDENTITY CHECK
-Verify that the output strictly adheres to the brutalist aesthetic:
-- [ ] Does any element have border-radius > 0? → Remove or set to 0.
-- [ ] Are any of the banned fonts used (Inter, Roboto, Poppins, Open Sans)? → Replace them.
-- [ ] Does any section repeat the layout of the previous one? → Break it with a different layout pattern (e.g. table instead of columns).
-- [ ] Is there a centered hero section? → Restructure into an asymmetrical grid.
-- [ ] Is there a 3-column card grid on mobile? → Convert it into a vertically stacked indexed list.
-- [ ] Are there soft box-shadows on any element? → Remove or replace with sharp, hard shadows (e.g., `box-shadow: 4px 4px 0px 0px var(--color-bg)`).
-- [ ] Are all all buttons sharp-edged (border-radius: 0)?
-- [ ] Is there at least one element that intentionally breaks grid rules (engineered tension, e.g., asymmetric overlaps or negative margins)?
+1. **Horizontal Overflow Check:**
+   ```bash
+   grep -rn "overflow-x\|min-width" src/ --include="*.css"
+   ```
+   *Expected:* `overflow-x: hidden` is on body/main; no viewport-exceeding min-widths are present.
+2. **Font Size Legibility Audit:**
+   ```bash
+   grep -rn "font-size" src/ --include="*.css" | grep -v "clamp\|rem\|em\|16px\|var(" || true
+   ```
+   *Expected:* Empty/minimal output. No raw small pixel sizing overrides.
+3. **Media Query Isolation Verification:**
+   Verify mobile rules are encapsulated:
+   ```bash
+   grep -n "768\|480\|mobile" src/styles/*.css
+   ```
+4. **Touch Target Size Check:**
+   Ensure dimension declarations are compliant:
+   ```bash
+   grep -rn "width\|height\|padding" src/ --include="*.css" | grep -E "[0-9]{1,2}px" | grep -v "@media" | head -n 30
+   ```
+5. **Banned Fonts Check:**
+   ```bash
+   grep -rn "Inter\|Roboto\|Poppins\|Open Sans" src/ --include="*.css" --include="*.html" --include="*.astro" || true
+   ```
+   *Expected:* Empty output.
+6. **Border Radius Audit:**
+   Verify sharp brutalist borders:
+   ```bash
+   grep -rn "border-radius" src/ --include="*.css" | grep -v "border-radius: 0\|var(" || true
+   ```
+   *Expected:* Empty output or variable binds.
+7. **!important Protocol Verification:**
+   ```bash
+   grep -rn "!important" src/ --include="*.css" | grep -v "tap-highlight\|font-size.*16px\|text-size-adjust" || true
+   ```
+   *Expected:* Empty output. Only normalization !important values allowed.
+8. **Token Consistency Check:**
+   Find hardcoded hex colors outside root configuration files:
+   ```bash
+   grep -rn "#[0-9a-fA-F]\{3,6\}" src/styles/ --include="*.css" | grep -v ":root\|\/\*" || true
+   ```
+   *Expected:* Empty output. All custom values bind to `:root`.
+
+---
+
+## 12. AGENT LOGGING PROTOCOL
+You MUST maintain `/tmp/AGENT_LOG.md` throughout your execution. Populate and update the file after each phase:
+
+```markdown
+## Format:
+### [TIMESTAMP] PRE-FLIGHT
+- Framework detected: [result]
+- Token file found at: [path or NONE]
+- Existing breakpoints: [list]
+- Assumptions made: [list with reasoning]
+
+### [TIMESTAMP] CHANGES MADE
+- File: [path]
+- Change: [what and why]
+- Scope: [mobile-only / token addition / reset]
+
+### [TIMESTAMP] VERIFICATION
+- Command: [grep command run]
+- Result: [output]
+- Status: PASS / FAIL / NEEDS MANUAL REVIEW
+
+### [TIMESTAMP] CANNOT FIX (escalation to human required)
+- Issue: [description]
+- Reason: [why agent cannot fix autonomously]
+- Recommended action: [what human should do]
+```
