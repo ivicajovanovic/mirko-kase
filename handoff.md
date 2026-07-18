@@ -99,6 +99,14 @@ U korenu projekta možeš izvršavati sledeće komande:
    * Ubačeni podaci servisera Mirka Vranića: telefon `063 7 495 456`, adresa `Srpskih vladara 210, Petrovac`.
    * **Google Maps Embed:** Ugrađen je interaktivni Google Maps iframe.
    * **Stilizacija mape:** Preko CSS-a je primenjen filter (`grayscale(1) invert(0.9)`) koji mapu pretvara u tamni monohromatski mod. Prilikom prelaza mišem (hover), filter se isključuje i mapa se prikazuje u punoj boji radi lakšeg čitanja.
+ 7. **Mobilna Responzivnost i UX Optimizacije (Mobilni Audit & UX Polish):**
+    * **Prelazak i prelamanje reči:** Na svim naslovima na mobilnom su aktivirana pravila `word-break: break-word` i `overflow-wrap: break-word` kako bi se sprečilo ispadanje dugih reči iz okvira ekrana.
+    * **Focus Trap i Overlay u Meniju:** Unutar otvorenog mobilnog menija dodat je focus trap koji zadržava fokus u krug (između dugmeta za zatvaranje i navigacionih linkova) radi potpune pristupačnosti. Klikom na zatamnjeni pozadinski overlay ili pritiskom na taster `Escape`, meni se automatski i bezbedno zatvara.
+    * **iOS Zoom Prevention:** Postavljanjem fonta od **16px** na sva unosna polja forme (input, select, textarea) u mobilnom prikazu sprečeno je automatsko neželjeno zumiranje ekrana od strane iOS Safari pretraživača pri kucanju.
+    * **Safe Area Insets (Notch podrška):** Za moderne uređaje sa zubom na ekranu, uneli smo CSS varijable `env(safe-area-inset-...)` na lepljivo zaglavlje, klizajući meni i "nazad na vrh" dugme.
+    * **Haptički odziv (Touch feedback):** Uklonjen je fabrički plavi tap efekat na mobilnim pretraživačima i zamenjen modernim aktivnim haptičkim odzivom (`transform: scale(0.98)` sa brzim prelazom od 100ms).
+ 8. **Eliminacija Hero Flicker-a:**
+    * Uvedena je sinhrona detekcija u `<head>` delu Layout-a koja dodaje klasu `js` na `<html>` element. CSS koristi ovo da započne učitavanje hero slike sa rezom od 100% (potpuno sakrivena), čime se eliminiše vizuelni skok/blesak slike pre nego što se učita klijentski JS i započne slow reveal animacija.
 
 ---
 
