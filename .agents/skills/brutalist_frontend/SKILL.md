@@ -291,3 +291,15 @@ Log structure details MUST match:
 - **CHANGES MADE:** File path, change description, change scope.
 - **VERIFICATION:** Command run, output result, pass/fail status.
 - **CANNOT FIX:** Description of issue, reason for failure, recommended manual actions.
+
+---
+
+## 10. SESSION HANDOFF
+At the end of every execution session, write to `$PROJECT_ROOT/AGENT_LOG.md`:
+
+### HANDOFF NOTE
+- Last completed task: [description]
+- Next recommended task: [from SITEMAP.md]  
+- Open TBD items: [list from DESIGN_BRIEF.md]
+- Files modified this session: [list]
+- Verification status: [PASS / PARTIAL / NEEDS REVIEW]
