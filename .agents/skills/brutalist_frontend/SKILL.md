@@ -33,13 +33,19 @@ ls -la | grep -E "DESIGN_BRIEF|SITEMAP|COPY|ASSETS"
 ### FOUNDATION INTERVIEW MODE
 Guide the user through 4 phases, one by one. Wait for user input after each phase. Ask NO MORE than 3 questions at a time.
 
+Determine project root dynamically:
+```bash
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+echo "PROJECT_ROOT=\"$PROJECT_ROOT\"" > /tmp/AGENT_SESSION.env
+```
+
 #### Phase 1: Project Identity
 Ask the user:
 1. Who is the client and what do they do? (Name, industry, one-sentence description)
 2. Who are the primary site users? (Customers, partners, general public)
 3. Which 3 words describe the visual tone the site MUST have? Which 3 words describe what the site DEFINITIVNO NE SME (definitely must not) be?
 
-*Action:* Extract findings, propose a 1-sentence design direction, ask for confirmation. Upon confirmation, write `/home/ivica1979/projekti/mirko-kase/DESIGN_BRIEF.md` (Identity Section).
+*Action:* Extract findings, propose a 1-sentence design direction, ask for confirmation. Upon confirmation, write `DESIGN_BRIEF.md` inside `$PROJECT_ROOT` (Identity Section).
 
 #### Phase 2: Visual Identity
 Ask the user:
@@ -47,7 +53,7 @@ Ask the user:
 2. Does a logo exist? If yes, what format?
 3. Font preferences: Do you have specific font files/names, or should I propose options?
 
-*Action:* Propose 2-3 options from the permitted typography list if choice is free. Do not write style code until colors and fonts are confirmed. Update `/home/ivica1979/projekti/mirko-kase/DESIGN_BRIEF.md` (Visual Tokens Section).
+*Action:* Propose 2-3 options from the permitted typography list if choice is free. Do not write style code until colors and fonts are confirmed. Update `DESIGN_BRIEF.md` inside `$PROJECT_ROOT` (Visual Tokens Section).
 
 #### Phase 3: Site Structure
 Ask the user:
@@ -55,23 +61,30 @@ Ask the user:
 2. What sections must exist on the homepage, and in what order?
 3. What is the most critical action (primary CTA) the user should take?
 
-*Action:* Write `/home/ivica1979/projekti/mirko-kase/SITEMAP.md` and display it to the user. Wait for confirmation.
+*Action:* Write `SITEMAP.md` inside `$PROJECT_ROOT` and display it to the user. Wait for confirmation.
 
 #### Phase 4: Copy & Assets
 Ask the user:
 1. Do you have copy written? (If yes, organize it in COPY.md. If no, request permission to write placeholder copy).
 2. What visual assets exist? (Logo path, photographs, icons)
 
-*Action:* Create `/home/ivica1979/projekti/mirko-kase/COPY.md` and `/home/ivica1979/projekti/mirko-kase/ASSETS.md`. Explicitly mark placeholders: `<!-- PLACEHOLDER: replace before launch -->`.
+*Action:* Create `COPY.md` and `ASSETS.md` inside `$PROJECT_ROOT`. Explicitly mark placeholders: `<!-- PLACEHOLDER: replace before launch -->`.
 
-#### Bootstrap Transition
-Once all 4 files are saved, present the summary of tokens, fonts, pages, and copy status. Ask the user for priority on what page to build first. Then transition to Section 1.
+#### Bootstrap Transition & TBD Fallback
+Before transitioning to Section 1, check for unassigned design tokens:
+```bash
+grep -n "TBD" DESIGN_BRIEF.md | wc -l
+```
 
-#### Bootstrap Rules
-- NEVER ask more than 3 questions at once.
-- ALWAYS wait for confirmation before saving files or transitioning phases.
-- NEVER invent brand colors or fonts without explicit confirmation.
-- If user skips a question, mark as `TBD` in the file. Do not block progress.
+- **IF result > 0:**
+  - List all TBD items in chat.
+  - State: "These tokens are undefined. I will use SAFE DEFAULTS until you confirm final values. Safe defaults will be marked with `/* TBD-PLACEHOLDER */` in code for easy global find/replace."
+  - Propose Safe defaults:
+    - `--color-bg: #0f0e0d /* TBD-PLACEHOLDER */`
+    - `--color-text: #f0ece4 /* TBD-PLACEHOLDER */`
+    - `--color-muted: #6b6560 /* TBD-PLACEHOLDER */`
+    - `--color-accent: #d4391a /* TBD-PLACEHOLDER */`
+  - Do NOT block execution. Assign placeholders and proceed.
 
 ---
 
@@ -142,7 +155,7 @@ To protect the desktop viewport configuration and prevent layout regression, adh
    NEVER write or edit CSS properties outside `@media` queries unless:
    - Defining a new global custom variable inside `:root`.
    - Adding missing baseline resets (e.g. `box-sizing: border-box`).
-   - Documenting the addition: `/* AGENT: added baseline reset, no layout change */`.
+   - Documenting the addition: `/* AGENT: added baseline reset, not layout change */`.
 3. **Verification via Diff:**
    After every file change, run a diff verification check:
    ```bash
@@ -171,52 +184,94 @@ To prevent generating generic, average internet outputs, you are strictly BANNED
 
 ---
 
-## 6. LAYOUT DECISION TREE WITH DETERMINISTIC FALLBACKS
+## 6. LAYOUT DECISION TREE WITH DETECT-FIRST PROTOCOLS
 
 ### If building a Hero Section:
-- **DO NOT** center-align elements.
-- **USE:** Offset asymmetrical grids, bold headlines spanning multiple lines with different indents (e.g., lines 1 and 3 left-aligned, line 2 indented by `7vw`), and high-contrast vertical dividers.
+- **DETECT FIRST:**
+  ```bash
+  grep -rn "hero\|Hero\|banner" src/ --include="*.astro" --include="*.html" --include="*.jsx" -l
+  ```
+  - *IF hero component exists:* Read it before modifying.
+  - *IF hero component not found:* Scaffold layout using the rules below.
+- **LAYOUT RULES:**
+  - **DO NOT** center-align elements.
+  - **USE:** Offset asymmetrical grids, bold headlines spanning multiple lines with different indents (e.g., lines 1 and 3 left-aligned, line 2 indented by `7vw`), and high-contrast vertical dividers.
 
 ### If building a Features / Services List:
-- **DO NOT** use grid cards.
-- **USE:** Numbered indexes (`01`, `02`), horizontal border lines as separators, and asymmetric grids where names and copies bleed into columns (like a technical spreadsheet).
+- **DETECT FIRST:**
+  ```bash
+  grep -rn "feature\|service\|Material\|Office" src/ --include="*.astro" --include="*.html" --include="*.jsx" -l
+  ```
+  - *IF components exist:* Read them before modifying.
+  - *IF components not found:* Scaffold layout using the rules below.
+- **LAYOUT RULES:**
+  - **DO NOT** use grid cards.
+  - **USE:** Numbered indexes (`01`, `02`), horizontal border lines as separators, and asymmetric grids where names and copies bleed into columns (like a technical spreadsheet).
 
 ### If building a Contact Form:
-- **DO NOT** place labels inline next to inputs.
-- **DO NOT** use placeholder text as a label replacement.
-- **ALWAYS** place labels strictly above inputs.
-- **ALWAYS** make the submit button full-width on mobile.
+- **DETECT FIRST:**
+  ```bash
+  grep -rn "form\|commission\|contact" src/ --include="*.astro" --include="*.html" --include="*.jsx" -l
+  ```
+  - *IF components exist:* Read them before modifying.
+  - *IF components not found:* Scaffold layout using the rules below.
+- **LAYOUT RULES:**
+  - **DO NOT** place labels inline next to inputs.
+  - **DO NOT** use placeholder text as a label replacement.
+  - **ALWAYS** place labels strictly above inputs.
+  - **ALWAYS** make the submit button full-width on mobile.
 
 ### If building a Navigation / Header:
-- **DETECT:**
+- **DETECT FIRST:**
   ```bash
-  grep -n "nav\|header\|hamburger\|menu" src/ -r --include="*.css" --include="*.astro"
+  grep -n "nav\|header\|hamburger\|menu" src/ -r --include="*.css" --include="*.astro" --include="*.html"
   ```
-- **IF existing nav is found:**
-  - Read current implementation.
-  - Identify transition mechanism (e.g., toggled display vs transform).
-  - IF `display: none / block` is used → Replace with transform drawer animation (see Recipe below).
-  - IF `transform` is already implemented → Add only missing focus trap, scroll lock, and Escape listeners.
-  - DO NOT restructure working markup layout; add functionality on top.
-- **IF no nav is found:**
-  - Scaffold drawer layout from the Navigation Recipe.
-  - Create `src/components/Nav.astro` (or relevant framework layout file).
-  - Inject CSS styles into the main detected stylesheet.
-- **IF nav is a third-party module:**
-  - Do NOT modify the core library styles.
-  - Apply custom overriding styles externally. Document this in `/tmp/AGENT_LOG.md`.
+  - *IF existing nav is found:*
+    - Read current implementation.
+    - Identify transition mechanism (e.g., toggled display vs transform).
+    - IF `display: none / block` is used → Replace with transform drawer animation (see Recipe below).
+    - IF `transform` is already implemented → Add only missing focus trap, scroll lock, and Escape listeners.
+    - DO NOT restructure working markup layout; add functionality on top.
+  - *IF no nav is found:*
+    - Scaffold drawer layout from the Navigation Recipe.
+    - Create `src/components/Nav.astro` (or relevant framework layout file).
+    - Inject CSS styles into the main detected stylesheet.
+  - *IF nav is a third-party module:*
+    - Do NOT modify the core library styles.
+    - Apply custom overriding styles externally. Document this in `/tmp/AGENT_LOG.md`.
 
 ### If building a Testimonials / Social Proof Section:
-- **NEVER:** Use carousels with autoplay, infinite loops, or tiny dots.
-- **ALWAYS:** Stack them vertically on mobile, treating the quote as a styled block element with an asymmetric grid and numbered indexes.
+- **DETECT FIRST:**
+  ```bash
+  grep -rn "testimonial\|social-proof\|review" src/ --include="*.astro" --include="*.html" --include="*.jsx" -l
+  ```
+  - *IF components exist:* Read them before modifying.
+  - *IF components not found:* Scaffold layout using the rules below.
+- **LAYOUT RULES:**
+  - **NEVER:** Use carousels with autoplay, infinite loops, or tiny dots.
+  - **ALWAYS:** Stack them vertically on mobile, treating the quote as a styled block element with an asymmetric grid and numbered indexes.
 
 ### If building a Pricing Section:
-- **NEVER:** Fit 3 columns or cards side-by-side on mobile.
-- **ALWAYS:** Stack them vertically or use an accordion layout with a sticky CTA button at the bottom viewport.
+- **DETECT FIRST:**
+  ```bash
+  grep -rn "price\|pricing\|tariff\|plan" src/ --include="*.astro" --include="*.html" --include="*.jsx" -l
+  ```
+  - *IF components exist:* Read them before modifying.
+  - *IF components not found:* Scaffold layout using the rules below.
+- **LAYOUT RULES:**
+  - **NEVER:** Fit 3 columns or cards side-by-side on mobile.
+  - **ALWAYS:** Stack them vertically or use an accordion layout with a sticky CTA button at the bottom viewport.
 
 ### If building a Modal / Drawer:
-- **ALWAYS:** Apply `overscroll-behavior: contain` to prevent scroll chaining.
-- **ALWAYS:** Add `aria-modal="true"`, `role="dialog"`, keyboard Focus Trap, and Escape key handlers.
+- **DETECT FIRST:**
+  ```bash
+  grep -rn "modal\|dialog\|drawer" src/ --include="*.astro" --include="*.html" --include="*.jsx" -l
+  ```
+  - *IF components exist:* Read them before modifying.
+  - *IF components not found:* Scaffold layout using the rules below.
+- **LAYOUT RULES:**
+  - **ALWAYS:** Apply `overscroll-behavior: contain` to prevent scroll chaining.
+  - **ALWAYS:** Add `aria-modal="true"`, `role="dialog"`, keyboard Focus Trap, and Escape key handlers.
 
 ---
 
@@ -255,10 +310,11 @@ Use this architectural skeleton to organize the typography and color tokens. You
 
 ---
 
-## 8. CODE RECIPES & PLACEMENT PROCEDURES
+## 8. CODE RECIPES & EXCLUSION PROTOCOLS
 
 ### Fluid Typography
-- **Usage:** Set heading sizes.
+- **USE WHEN:** Sizing structural headings (`h1`, `h2`, display subtitles).
+- **DO NOT USE ON:** Body text, menus, buttons, forms, labels, or microcopy. Use standard scaling (`rem`/`em`) instead.
 - **Code:**
   ```css
   font-size: clamp(2rem, 8vw, 4.5rem);
@@ -266,7 +322,8 @@ Use this architectural skeleton to organize the typography and color tokens. You
   ```
 
 ### Safe Area for Notch Devices
-- **Usage:** Fixed headers, floating back-to-top buttons, sticky menus.
+- **USE WHEN:** Elements are fixed/sticky at the viewport edges (header bars, bottom drawer toggles, back-to-top buttons).
+- **DO NOT USE ON:** Inline sections, grid cards, elements centered in the flow, or normal static paragraphs.
 - **Code:**
   ```css
   padding-bottom: calc(24px + env(safe-area-inset-bottom));
@@ -274,7 +331,8 @@ Use this architectural skeleton to organize the typography and color tokens. You
   ```
 
 ### iOS Zoom Prevention on Inputs
-- **Usage:** Input normalizations.
+- **USE WHEN:** Input fields, select forms, and textarea tags on responsive mobile views.
+- **DO NOT USE ON:** Labels, form title wraps, buttons, helper text descriptions, or inputs on desktop views (keep specificity mobile-bound).
 - **Code:**
   ```css
   input, select, textarea {
@@ -283,14 +341,16 @@ Use this architectural skeleton to organize the typography and color tokens. You
   ```
 
 ### 100vh Fix for Mobile Browsers
-- **Usage:** Full viewport heights.
+- **USE WHEN:** Full screen viewport sections (e.g., initial loading screens, full-height landing heroes).
+- **DO NOT USE ON:** Standard content sections (forms, pricing lists, services), or any containers where vertical space should adjust to wrapped elements.
 - **Code:**
   ```css
   min-height: 100dvh;
   ```
 
 ### Touch Feedback
-- **Usage:** Mobile interactive links/buttons.
+- **USE WHEN:** Custom interactive links, anchors, or form action buttons.
+- **DO NOT USE ON:** Native inputs (text, numbers, checkboxes), non-clickable cards, text elements, or decorative items.
 - **Code:**
   ```css
   a, button, input, select, textarea, [role="button"] {
@@ -303,7 +363,7 @@ Use this architectural skeleton to organize the typography and color tokens. You
   }
   ```
 
-### Hamburger Menu Script (Mobile Menu Interactivity)
+### JavaScript: Hamburger Menu - Brutalist Drawer
 
 #### Placement Decision:
 - **IF Astro:** Save to `src/scripts/nav.ts` and import via `<script>` inside `Layout.astro` or `Nav.astro`.
@@ -354,7 +414,7 @@ document.addEventListener('keydown', (e) => {
 });
 ```
 
-### Intersection Observer Script (Scroll Reveal without Libraries)
+### JavaScript: Scroll Reveal without Libraries (Intersection Observer)
 
 #### Placement Decision:
 - Save to main scripts or index bundle, target element selector attributes matching `[data-reveal]`.
@@ -516,45 +576,54 @@ const setHeroCut = (value) => {
 
 ---
 
-## 11. AUTOMATED VERIFICATION SEQUENCE
-Before finishing execution, you MUST run these command checks to programmatically audit your changes:
+## 11. AUTOMATED VERIFICATION & ESCALATION SEQUENCE
+You MUST run these bash pipelines before finishing a task. Treat all non-empty results as failures.
+
+### Execution Checks:
 
 1. **Horizontal Overflow Check:**
    ```bash
    grep -rn "overflow-x\|min-width" src/ --include="*.css"
    ```
-   *Expected:* `overflow-x: hidden` is on body/main; no viewport-exceeding min-widths are present.
+   *Expected:* `overflow-x: hidden` exists on body/main; no unconstrained viewport-exceeding min-widths.
+
 2. **Font Size Legibility Audit:**
    ```bash
    grep -rn "font-size" src/ --include="*.css" | grep -v "clamp\|rem\|em\|16px\|var(" || true
    ```
-   *Expected:* Empty/minimal output. No raw small pixel sizing overrides.
+   *Expected:* Empty/minimal output. No raw static pixel sizing overrides.
+
 3. **Media Query Isolation Verification:**
    Verify mobile rules are encapsulated:
    ```bash
    grep -n "768\|480\|mobile" src/styles/*.css
    ```
+
 4. **Touch Target Size Check:**
    Ensure dimension declarations are compliant:
    ```bash
    grep -rn "width\|height\|padding" src/ --include="*.css" | grep -E "[0-9]{1,2}px" | grep -v "@media" | head -n 30
    ```
+
 5. **Banned Fonts Check:**
    ```bash
    grep -rn "Inter\|Roboto\|Poppins\|Open Sans" src/ --include="*.css" --include="*.html" --include="*.astro" || true
    ```
    *Expected:* Empty output.
+
 6. **Border Radius Audit:**
    Verify sharp brutalist borders:
    ```bash
    grep -rn "border-radius" src/ --include="*.css" | grep -v "border-radius: 0\|var(" || true
    ```
    *Expected:* Empty output or variable binds.
+
 7. **!important Protocol Verification:**
    ```bash
    grep -rn "!important" src/ --include="*.css" | grep -v "tap-highlight\|font-size.*16px\|text-size-adjust" || true
    ```
-   *Expected:* Empty output. Only normalization !important values allowed.
+   *Expected:* Empty output.
+
 8. **Token Consistency Check:**
    Find hardcoded hex colors outside root configuration files:
    ```bash
@@ -564,9 +633,44 @@ Before finishing execution, you MUST run these command checks to programmaticall
 
 ---
 
-## 12. AGENT LOGGING PROTOCOL
-You MUST maintain `/tmp/AGENT_LOG.md` throughout your execution. Populate and update the file after each phase:
+### ESCALATION & AUTOFix FLOW
+IF a verification pipeline check returns unexpected output/failure:
+1. Log the failure state inside `/tmp/AGENT_LOG.md` under a `[TIMESTAMP] VERIFICATION` block.
+2. Attempt an auto-fix ONLY if the issue belongs to this permitted category:
+   - **Banned font found:** Replace font name references with `var(--font-display)` or `var(--font-mono)`.
+   - **Rounded border-radius found:** Force override element target class rule to `border-radius: 0;`.
+   - **Hardcoded hex value found:** Replace color declaration with the nearest matching `:root` semantic token.
+   - **!important tag misused:** Strip the `!important` tag and correct specificity using nesting selectors.
+3. Re-run the verification pipeline check once after making the correction.
+4. IF the check continues to fail after the auto-fix attempt:
+   - Immediately document the issue under the `CANNOT FIX` escalation log.
+   - Proceed to run any remaining verification tests.
+   - DO NOT loop on auto-fix adjustments. Run exactly **ONE** attempt, and then escalate to the human log.
 
+---
+
+## 12. HARD ESCALATION LIST (ZABRANJENE AUTONOMNE POPRAVKE)
+You MUST NOT attempt to repair or resolve these visual layout issues yourself. Document the problem under `CANNOT FIX` in the agent log and stop execution:
+
+- **WCAG contrast ratio failures:** Requires custom human/client aesthetic color judgment.
+- **Third-party CSS library conflicts:** High risk of breaking core dependencies.
+- **Missing font files:** Font files missing from `/public` or stylesheet references cannot be resolved autonomously.
+- **Missing assets/logos:** Logo files referenced in assets but not physically located inside the repo.
+- **Conflicting author media queries:** Layout breaking because multiple authors implemented clashing mobile bounds in parallel stylesheets.
+- **Missing animation instructions:** Do not invent scroll motion paths or micro-interactions unless explicitly documented.
+- **Database/API integrations affecting render blocks:** Keep adjustments within design layouts.
+
+---
+
+## 13. AGENT LOGGING PROTOCOL
+You MUST maintain `AGENT_LOG.md` inside `/tmp/` throughout execution. Insert timestamps and state shifts programmatically:
+
+```bash
+# Append timestamp log block
+echo "### $(date '+%Y-%m-%d %H:%M:%S') [PHASE-NAME]" >> /tmp/AGENT_LOG.md
+```
+
+### Log File Format:
 ```markdown
 ## Format:
 ### [TIMESTAMP] PRE-FLIGHT
